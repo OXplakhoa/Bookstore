@@ -21,6 +21,18 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        // thêm cấu hình nếu cần
+        // Add Configurations
+        builder.Entity<Product>()
+            .Property(p => p.Price)
+            .HasColumnType("decimal(18,2)");
+        builder.Entity<Payment>()
+            .Property(p => p.Amount)
+            .HasColumnType("decimal(18,2)");
+        builder.Entity<Order>()
+            .Property(o => o.Total)
+            .HasColumnType("decimal(18,2)");
+        builder.Entity<OrderItem>()
+            .Property(o => o.UnitPrice)
+            .HasColumnType("decimal(18,2)");
     }
 }
