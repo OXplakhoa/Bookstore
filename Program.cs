@@ -3,27 +3,26 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Add services to the container.
+// Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => 
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequiredLength = 8;
-    options.Password.RequiredUniqueChars = 1;
+    options.Password.RequiredLength = 6;
+    // tùy chỉnh policy mật khẩu, email confirmation...
 })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders()
     .AddDefaultUI();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// pipeline
+// pipeline (giữ nguyên cấu hình mặc định)
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -41,11 +40,9 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapRazorPages(); //Identity UI runs
+app.MapRazorPages(); // để Identity UI hoạt động
 
-//Seed roles/ data
+// gọi seed roles / data ở đây (mình sẽ thêm đoạn seed ở bước tiếp theo)
 await DbInitializer.SeedAsync(app.Services);
 
 app.Run();
-
-
