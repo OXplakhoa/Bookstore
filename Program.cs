@@ -44,6 +44,7 @@ app.MapControllerRoute(
 app.MapRazorPages(); //Identity UI runs
 
 //Seed roles/ data
+await DbInitializer.SeedAsync(app.Services);
 
 app.Run();
 
