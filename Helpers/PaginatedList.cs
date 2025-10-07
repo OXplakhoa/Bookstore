@@ -25,7 +25,7 @@ namespace Bookstore.Helpers
         //IQueryable: Represents a queryable collection of entities. This is used to avoid executing the query immediately
         {
             var count = await source.CountAsync(); //Executes SELECT COUNT(*) FROM source(Books)
-            var items = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync(); //Executes SELECT * FROM source(Books) LIMIT pageSize OFFSET (pageIndex - 1) * pageSize
+            var items = await source.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync(); //Executes (STOP) SELECT * FROM source(Books) LIMIT pageSize OFFSET (pageIndex - 1) * pageSize
             return new PaginatedList<T>(items, count, pageIndex, pageSize);
         }
     }
