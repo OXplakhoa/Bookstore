@@ -1,0 +1,16 @@
+using Bookstore.Helpers;
+
+namespace Bookstore.ViewModels
+{
+    public class ProductListViewModel
+    {
+        public PaginatedList<Product>? Products {get; set;}
+        public IEnumerable<Category>? Categories {get; set;}
+
+        // current query
+        public string? Search {get; set;}
+        public int? CategoryId {get; set;}
+        public string? Sort {get; set;} //Determine the sorting order
+
+    }
+}
