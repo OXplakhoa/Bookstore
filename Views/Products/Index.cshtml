@@ -1,0 +1,82 @@
+@using Bookstore.ViewModels
+@model ProductListViewModel
+
+@{
+    ViewData["Title"] = "Sách";
+}
+
+<div class="container my-4">
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <h5>Danh mục</h5>
+            <div class="list-group">
+                <a asp-action="Index" asp-route-categoryId="" asp-route-search="@Model.Search"
+                    class="list-group-item list-group-item-action @(Model.CategoryId == null ? "active" : "")">Tất
+                    cả</a>
+                @if (Model.Categories != null)
+                {
+                    @foreach (var cat in Model.Categories)
+                    {
+                        <a asp-action="Index" asp-route-categoryId="@cat.CategoryId" asp-route-search="@Model.Search"
+                            class="list-group-item list-group-item-action @(Model.CategoryId == cat.CategoryId ? "active" : "")">
+                            @cat.Name
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="d-flex mb-3 align-items-center">
+                <form class="flex-grow-1" method="get" asp-action="Index">
+                    <div class="input-group">
+                        <input type="text" name="search" value="@Model.Search" class="form-control"
+                            placeholder="Tìm tên sách, tác giả..." />
+                        <input type="hidden" name="categoryId" value="@(Model.CategoryId ?? 0)" />
+                        <select name="sort" class="form-select" style="max-width:180px;">
+                            <option value="newest" selected="@(Model.Sort == "newest")">Mới nhất</option>
+                            <option value="price_asc" selected="@(Model.Sort == "price_asc")">Giá: thấp → cao</option>
+                            <option value="price_desc" selected="@(Model.Sort == "price_desc")">Giá: cao → thấp</option>
+                        </select>
+                        <button class="btn btn-primary">Tìm</button>
+                    </div>
+                </form>
+            </div>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+                @if (Model.Products != null)
+                {
+                    @foreach (var p in Model.Products)
+                    {
+                        <div class="col">
+                            @await Html.PartialAsync("_ProductCard", p)
+                        </div>
+                    }
+                }
+            </div>
+            <!-- Pagination -->
+            <nav aria-label="Page navigation" class="mt-4">
+                @if (Model.Products != null)
+                {
+                    <ul class="pagination">
+                        <li class="page-item @(Model.Products.HasPreviousPage ? "" : "disabled")">
+                            <a class="page-link" asp-action="Index" asp-route-page="@(Model.Products.PageIndex - 1)"
+                                asp-route-search="@Model.Search" asp-route-categoryId="@(Model.CategoryId ?? 0)"
+                                asp-route-sort="@Model.Sort">Previous</a>
+                        </li>
+                        @for (int i = 1; i <= Model.Products.TotalPages; i++)
+                        {
+                            <li class="page-item @(Model.Products.PageIndex == i ? "active" : "")">
+                                <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-search="@Model.Search"
+                                    asp-route-categoryId="@(Model.CategoryId ?? 0)" asp-route-sort="@Model.Sort">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(Model.Products.HasNextPage ? "" : "disabled")">
+                            <a class="page-link" asp-action="Index" asp-route-page="@(Model.Products.PageIndex + 1)"
+                                asp-route-search="@Model.Search" asp-route-categoryId="@(Model.CategoryId ?? 0)"
+                                asp-route-sort="@Model.Sort">Next</a>
+                        </li>
+                    </ul>
+                }
+            </nav>
+        </div>
+    </div>
+</div>

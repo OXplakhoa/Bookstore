@@ -1,0 +1,103 @@
+@using Bookstore.ViewModels
+@model ProductDetailsViewModel
+
+@{
+    ViewData["Title"] = "Product Details"; 
+    // Declare imageUrl and mainImage here so they are accessible globally in the view
+    // Initialize with a default value to handle the case where Model.Product is null
+    string imageUrl = Url.Content("~/images/no-image.png");
+
+
+    if (Model.Product != null)
+    {
+        ViewData["Title"] = Model.Product.Title;
+
+        var mainImage = Model.Product.ProductImages?.FirstOrDefault(i => i.IsMain) ?? Model.Product.ProductImages?.FirstOrDefault();
+        imageUrl = mainImage?.ImageUrl ?? Url.Content("~/images/no-image.png"); 
+    }
+}
+
+<div class="container my-4">
+    <div class="row">
+        <div class="col-md-5">
+            <img src="@imageUrl" class="img-fluid rounded main-product-image" alt="@(Model.Product?.Title ?? "Product")" style="object-fit:cover; width:100%; height:420px;" />
+
+            @if (Model.Product?.ProductImages != null && Model.Product.ProductImages.Count() > 1) // Added null checks for Product and ProductImages
+            {
+                <div class="mt-2 d-flex gap-2">
+                    @foreach (var img in Model.Product.ProductImages.Take(4)) // Changed Images to ProductImages
+                    {
+                        <img src="@img.ImageUrl" style="width:85px; height:70px; object-fit:cover; cursor:pointer;" onclick="document.querySelector('.main-product-image').src='@img.ImageUrl';" />
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="col-md-7">
+            <h3>@(Model.Product?.Title ?? "Product Not Found")</h3>
+            <p class="text-muted">Tác giả: @(Model.Product?.Author ?? "N/A")</p>
+            <h4 class="text-danger">@(Model.Product?.Price.ToString("N0") ?? "0")₫</h4>
+            <p><strong>Thể loại:</strong> @(Model.Product?.Category?.Name ?? "N/A")</p>
+            <p><strong>Tình trạng:</strong> @(Model.Product?.Stock > 0 ? $"Còn hàng ({Model.Product.Stock})" : "Hết hàng")</p>
+
+            @if (Model.Product != null) // Only show quantity and cart if product exists
+            {
+                <div class="mb-3">
+                    <label for="qty" class="form-label">Số lượng</label>
+                    <input id="qty" class="form-control" type="number" value="1" min="1" max="@Model.Product.Stock" style="width:100px;" />
+                </div>
+
+                <div class="mb-3">
+                    <button class="btn btn-primary" id="btnAddCart" data-id="@Model.Product.ProductId">Thêm vào giỏ</button>
+                    <a asp-controller="Cart" asp-action="Index" class="btn btn-outline-secondary ms-2">Xem giỏ hàng</a>
+                </div>
+
+                <h5>Mô tả</h5>
+                <div>@Html.Raw(Model.Product.Description)</div>
+            }
+            else
+            {
+                <div class="alert alert-warning">Product details are not available.</div>
+            }
+        </div>
+    </div>
+
+    @if (Model.RelatedProducts != null && Model.RelatedProducts.Any())
+    {
+        <hr class="my-4" />
+        <h5>Sách liên quan</h5>
+        <div class="row g-3">
+            @foreach (var rp in Model.RelatedProducts)
+            {
+                <div class="col-6 col-md-3">
+                    @await Html.PartialAsync("_ProductCard", rp)
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('btnAddCart')?.addEventListener('click', async function () {
+            var id = this.dataset.id;
+            var qty = document.getElementById('qty').value || 1;
+            try {
+                const resp = await fetch('/Cart/AddToCart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value },
+                    body: JSON.stringify({ productId: id, quantity: qty })
+                });
+                if (resp.ok) {
+                    alert('Đã thêm vào giỏ hàng');
+                    // optionally update cart count in navbar
+                } else {
+                    const txt = await resp.text();
+                    alert('Lỗi: ' + txt);
+                }
+            } catch (e) {
+                alert('Lỗi khi thêm giỏ hàng');
+            }
+        });
+    </script>
+}
