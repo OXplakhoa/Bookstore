@@ -61,5 +61,29 @@ namespace Bookstore.Controllers
             };
             return View(vm);
         }
+        // Get: /Products/Details/5 or  /Products/Details/5?slug=...
+        public async Task<IActionResult> Details(int id)
+        {
+            if (id <= 0) return NotFound();
+            var product = await _context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.ProductId == id && p.IsActive);
+            if (product == null) return NotFound();
+
+            // related: same category, top 4
+            var related = await _context.Products
+                .Where(p => p.CategoryId == product.CategoryId && p.ProductId != product.ProductId && p.IsActive)
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(4)
+                .AsNoTracking() // Optimizing 
+                .ToListAsync();
+            var vm = new ProductDetailsViewModel //VM to encapsulate data 
+            {
+                Product = product,
+                RelatedProducts = related
+            };
+            return View(vm);
+        }
     }
 }
