@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "F:\\code\\NET\\Bookstore\\Bookstore.csproj": {}
+    "F:\\code\\net\\Bookstore\\Bookstore.csproj": {}
   },
   "projects": {
-    "F:\\code\\NET\\Bookstore\\Bookstore.csproj": {
+    "F:\\code\\net\\Bookstore\\Bookstore.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\code\\NET\\Bookstore\\Bookstore.csproj",
+        "projectUniqueName": "F:\\code\\net\\Bookstore\\Bookstore.csproj",
         "projectName": "Bookstore",
-        "projectPath": "F:\\code\\NET\\Bookstore\\Bookstore.csproj",
+        "projectPath": "F:\\code\\net\\Bookstore\\Bookstore.csproj",
         "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "F:\\code\\NET\\Bookstore\\obj\\",
+        "outputPath": "F:\\code\\net\\Bookstore\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config"

@@ -1,7 +1,7 @@
 @model Product
 @{
     var mainImage = Model.ProductImages?.FirstOrDefault(i => i.IsMain) ?? Model.ProductImages?.FirstOrDefault();
-    var imageUrl = mainImage?.ImageUrl ?? Url.Content("~/images/no-image.png");
+    var imageUrl = mainImage?.ImageUrl ?? Url.Content("~/images/no-image.svg");
 }
 
 <div class="card h-100">

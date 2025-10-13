@@ -5,7 +5,7 @@
     ViewData["Title"] = "Product Details"; 
     // Declare imageUrl and mainImage here so they are accessible globally in the view
     // Initialize with a default value to handle the case where Model.Product is null
-    string imageUrl = Url.Content("~/images/no-image.png");
+    string imageUrl = Url.Content("~/images/no-image.svg");
 
 
     if (Model.Product != null)
@@ -13,7 +13,7 @@
         ViewData["Title"] = Model.Product.Title;
 
         var mainImage = Model.Product.ProductImages?.FirstOrDefault(i => i.IsMain) ?? Model.Product.ProductImages?.FirstOrDefault();
-        imageUrl = mainImage?.ImageUrl ?? Url.Content("~/images/no-image.png"); 
+        imageUrl = mainImage?.ImageUrl ?? Url.Content("~/images/no-image.svg"); 
     }
 }
 
@@ -89,8 +89,12 @@
                     body: JSON.stringify({ productId: id, quantity: qty })
                 });
                 if (resp.ok) {
+                    const data = await resp.json();
                     alert('Đã thêm vào giỏ hàng');
-                    // optionally update cart count in navbar
+                    // Update cart count in navbar
+                    if (typeof updateCartCount === 'function') {
+                        updateCartCount();
+                    }
                 } else {
                     const txt = await resp.text();
                     alert('Lỗi: ' + txt);

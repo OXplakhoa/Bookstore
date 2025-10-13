@@ -24,8 +24,22 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Sách</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark position-relative" asp-controller="Cart" asp-action="Index">
+                                <i class="bi bi-cart3"></i> Giỏ hàng
+                                <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7em;">
+                                    0
+                                </span>
+                            </a>
+                        </li>
+                        @await Html.PartialAsync("_LoginPartial")
                     </ul>
                 </div>
             </div>
@@ -45,6 +59,31 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <!-- Anti-forgery token for AJAX requests -->
+    @Html.AntiForgeryToken()
+    
+    <!-- Cart count update script -->
+    <script>
+        function updateCartCount() {
+            fetch('/Cart/GetCartCount')
+                .then(response => response.json())
+                .then(data => {
+                    const cartCountElement = document.getElementById('cartCount');
+                    if (cartCountElement) {
+                        cartCountElement.textContent = data.cartCount;
+                        cartCountElement.style.display = data.cartCount > 0 ? 'inline' : 'none';
+                    }
+                })
+                .catch(error => console.error('Error updating cart count:', error));
+        }
+
+        // Update cart count on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+        });
+    </script>
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

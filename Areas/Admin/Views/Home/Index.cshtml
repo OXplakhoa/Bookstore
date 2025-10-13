@@ -1,0 +1,126 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var stats = ViewBag.Stats as dynamic;
+}
+
+<div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng sản phẩm</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@stats.TotalProducts</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-book" style="font-size: 2rem; color: #4e73df;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Sản phẩm hoạt động</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@stats.ActiveProducts</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-check-circle" style="font-size: 2rem; color: #1cc88a;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Danh mục</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@stats.TotalCategories</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-tags" style="font-size: 2rem; color: #36b9cc;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Sản phẩm sắp hết</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@stats.LowStockProducts</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 2rem; color: #f6c23e;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thống kê nhanh</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        Tổng đơn hàng
+                        <span class="badge bg-primary rounded-pill">@stats.TotalOrders</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        Sản phẩm hoạt động
+                        <span class="badge bg-success rounded-pill">@stats.ActiveProducts</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        Sản phẩm tạm dừng
+                        <span class="badge bg-secondary rounded-pill">@(stats.TotalProducts - stats.ActiveProducts)</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        Sản phẩm sắp hết hàng
+                        <span class="badge bg-warning rounded-pill">@stats.LowStockProducts</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Thao tác nhanh</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-controller="Products" asp-action="Create" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Thêm sản phẩm mới
+                    </a>
+                    <a asp-controller="Categories" asp-action="Create" class="btn btn-success">
+                        <i class="bi bi-tag"></i> Thêm danh mục mới
+                    </a>
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-info">
+                        <i class="bi bi-list"></i> Xem tất cả sản phẩm
+                    </a>
+                    <a asp-area="" asp-controller="Home" asp-action="Index" target="_blank" class="btn btn-outline-secondary">
+                        <i class="bi bi-house"></i> Xem website
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
