@@ -1,0 +1,107 @@
+# ===================================================================
+# General & OS-specific files
+# ===================================================================
+*.swp
+*~
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
+
+# ===================================================================
+# Visual Studio / Rider / IDE specific files
+# ===================================================================
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ===================================================================
+# Build artifacts & Binaries
+# ===================================================================
+[Bb]in/
+[Oo]bj/
+[Rr]elease/
+[Rr]eleases/
+[Dd]ebug/
+[Dd]ebug[Pp]ublic/
+[Dd]ebug[Ss]ymbols/
+x64/
+x86/
+build/
+Build/
+bld/
+
+# ===================================================================
+# ASP.NET Core specific files
+# ===================================================================
+# Ignores all appsettings files except for the main one.
+# This is crucial for security! Keep appsettings.json as a template,
+# but keep specific environment settings (and secrets) out of git.
+appsettings.*.json
+!appsettings.json
+
+# User secrets
+secrets.json
+user-secrets.json
+*.secrets.json
+
+# Web root build output
+wwwroot/dist
+wwwroot/lib
+
+# ===================================================================
+# Dependency & Package files
+# ===================================================================
+node_modules/
+jspm_packages/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lib/
+packages/
+*.nupkg
+*.nuget.props
+*.nuget.targets
+
+# ===================================================================
+# Other generated files
+# ===================================================================
+# Log files
+[Ll]ogs/
+*.log
+
+# Scaffolding artifacts
+*.Generated.cs
+*_Designer.cs
+*.Designer.cs
+*.generated.cs
+
+# Profiler & Test Results
+*.psess
+*.vsp
+*.vspx
+*.sap
+*.coverage
+*.coveragexml
+[Tt]est[Rr]esult*/
+[Tt]est[Oo]utput/
+
+# Migration files (optional, depends on team workflow)
+# If each developer generates their own migrations, you might ignore them.
+# If migrations are shared, do NOT ignore them. Default is to keep them.
+# **/Migrations/*.cs
+
+# Other
+*.Cache
+ClientBin/
+~$*
+*~
+*.dbmdl
+*.dbproj.schemaview
+*.pfx
+*.publishsettings
+node_modules/
+bower_components/

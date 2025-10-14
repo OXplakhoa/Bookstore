@@ -2358,6 +2358,23 @@
           "lib/netstandard2.0/NuGet.Versioning.dll": {}
         }
       },
+      "Stripe.net/44.0.0": {
+        "type": "package",
+        "dependencies": {
+          "Newtonsoft.Json": "12.0.3",
+          "System.Configuration.ConfigurationManager": "6.0.0"
+        },
+        "compile": {
+          "lib/net6.0/Stripe.net.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/Stripe.net.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "System.ClientModel/1.0.0": {
         "type": "package",
         "dependencies": {
@@ -6846,6 +6863,30 @@
         "nuget.versioning.nuspec"
       ]
     },
+    "Stripe.net/44.0.0": {
+      "sha512": "J8YzKlQRs1FOLL2NIJDQ/hF+mG2LMKBEmoSTxWEg/kQX9R9AuUeo4mDv2Z/lANYHLlDYl0NeSNdDXStgpjltCg==",
+      "type": "package",
+      "path": "stripe.net/44.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "README.md",
+        "icon.png",
+        "lib/net461/Stripe.net.dll",
+        "lib/net461/Stripe.net.xml",
+        "lib/net5.0/Stripe.net.dll",
+        "lib/net5.0/Stripe.net.xml",
+        "lib/net6.0/Stripe.net.dll",
+        "lib/net6.0/Stripe.net.xml",
+        "lib/netcoreapp3.1/Stripe.net.dll",
+        "lib/netcoreapp3.1/Stripe.net.xml",
+        "lib/netstandard2.0/Stripe.net.dll",
+        "lib/netstandard2.0/Stripe.net.xml",
+        "stripe.net.44.0.0.nupkg.sha512",
+        "stripe.net.nuspec"
+      ]
+    },
     "System.ClientModel/1.0.0": {
       "sha512": "I3CVkvxeqFYjIVEP59DnjbeoGNfo/+SZrCLpRz2v/g0gpCHaEMPtWSY0s9k/7jR1rAsLNg2z2u1JRB76tPjnIw==",
       "type": "package",
@@ -8085,7 +8126,8 @@
       "Microsoft.AspNetCore.Identity.UI >= 9.0.9",
       "Microsoft.EntityFrameworkCore.SqlServer >= 9.0.9",
       "Microsoft.EntityFrameworkCore.Tools >= 9.0.9",
-      "Microsoft.VisualStudio.Web.CodeGeneration.Design >= 9.0.0"
+      "Microsoft.VisualStudio.Web.CodeGeneration.Design >= 9.0.0",
+      "Stripe.net >= 43.25.0"
     ]
   },
   "packageFolders": {
@@ -8094,11 +8136,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "F:\\code\\NET\\Bookstore\\Bookstore.csproj",
+      "projectUniqueName": "F:\\code\\net\\Bookstore\\Bookstore.csproj",
       "projectName": "Bookstore",
-      "projectPath": "F:\\code\\NET\\Bookstore\\Bookstore.csproj",
+      "projectPath": "F:\\code\\net\\Bookstore\\Bookstore.csproj",
       "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-      "outputPath": "F:\\code\\NET\\Bookstore\\obj\\",
+      "outputPath": "F:\\code\\net\\Bookstore\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -8152,6 +8194,10 @@
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
             "target": "Package",
             "version": "[9.0.0, )"
+          },
+          "Stripe.net": {
+            "target": "Package",
+            "version": "[43.25.0, )"
           }
         },
         "imports": [
@@ -8176,5 +8222,17 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1603",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Bookstore depends on Stripe.net (>= 43.25.0) but Stripe.net 43.25.0 was not found. Stripe.net 44.0.0 was resolved instead.",
+      "libraryId": "Stripe.net",
+      "targetGraphs": [
+        "net9.0"
+      ]
+    }
+  ]
 }
