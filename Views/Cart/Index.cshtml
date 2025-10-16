@@ -82,7 +82,7 @@
                             <span class="text-primary">@Model.TotalPrice.ToString("N0")₫</span>
                         </div>
                         <div class="d-grid gap-2 mt-3">
-                            <a href="#" class="btn btn-primary btn-lg">Thanh toán</a>
+                            <a asp-controller="Checkout" asp-action="Index" class="btn btn-primary btn-lg">Thanh toán</a>
                             <a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary">Tiếp tục mua sắm</a>
                         </div>
                     </div>

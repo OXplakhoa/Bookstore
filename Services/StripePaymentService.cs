@@ -1,6 +1,9 @@
 using Microsoft.Extensions.Options;
 using Stripe;
 using Stripe.Checkout;
+
+namespace Bookstore.Services;
+
 // Services/StripePaymentService.cs
 public class StripeSettings
 {

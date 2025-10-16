@@ -1,0 +1,128 @@
+@model IEnumerable<Bookstore.ViewModels.OrderSummaryViewModel>
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Đơn hàng của tôi</h2>
+        <a asp-controller="Products" asp-action="Index" class="btn btn-outline-primary">
+            <i class="fas fa-shopping-bag me-2"></i>Tiếp tục mua sắm
+        </a>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="row">
+            @foreach (var order in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">@order.OrderNumber</h6>
+                            <small class="text-muted">@order.OrderDate.ToString("dd/MM/yyyy")</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="@order.FirstProductImage" alt="Product" class="me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">@order.ItemCount sản phẩm</h6>
+                                    <small class="text-muted">@order.OrderDate.ToString("HH:mm")</small>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Tổng tiền:</span>
+                                    <span class="fw-bold text-primary">@order.Total.ToString("N0") ₫</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">Thanh toán:</span>
+                                    <span>
+                                        @if (order.PaymentMethod == "COD")
+                                        {
+                                            <i class="fas fa-money-bill-wave me-1"></i>@("COD")
+                                        }
+                                        else if (order.PaymentMethod == "Stripe")
+                                        {
+                                            <i class="fas fa-credit-card me-1"></i>@("Online")
+                                        }
+                                        else
+                                        {
+                                            @order.PaymentMethod
+                                        }
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">Trạng thái:</span>
+                                    <span>
+                                        @if (order.OrderStatus == "Processing")
+                                        {
+                                            <span class="badge bg-primary">Đang xử lý</span>
+                                        }
+                                        else if (order.OrderStatus == "Shipped")
+                                        {
+                                            <span class="badge bg-info">Đã giao hàng</span>
+                                        }
+                                        else if (order.OrderStatus == "Delivered")
+                                        {
+                                            <span class="badge bg-success">Đã giao</span>
+                                        }
+                                        else if (order.OrderStatus == "Cancelled")
+                                        {
+                                            <span class="badge bg-danger">Đã hủy</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@order.OrderStatus</span>
+                                        }
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted">Thanh toán:</span>
+                                    <span>
+                                        @if (order.PaymentStatus == "Paid" || order.PaymentStatus == "Completed")
+                                        {
+                                            <span class="badge bg-success">Đã thanh toán</span>
+                                        }
+                                        else if (order.PaymentStatus == "COD")
+                                        {
+                                            <span class="badge bg-warning">Chờ thanh toán</span>
+                                        }
+                                        else if (order.PaymentStatus == "Failed")
+                                        {
+                                            <span class="badge bg-danger">Thất bại</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@order.PaymentStatus</span>
+                                        }
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-outline-primary btn-sm w-100">
+                                <i class="fas fa-eye me-2"></i>Xem chi tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-shopping-bag fa-4x text-muted mb-4"></i>
+            <h4>Chưa có đơn hàng nào</h4>
+            <p class="text-muted">Bạn chưa có đơn hàng nào. Hãy bắt đầu mua sắm ngay!</p>
+            <a asp-controller="Products" asp-action="Index" class="btn btn-primary">
+                <i class="fas fa-shopping-bag me-2"></i>Bắt đầu mua sắm
+            </a>
+        </div>
+    }
+</div>

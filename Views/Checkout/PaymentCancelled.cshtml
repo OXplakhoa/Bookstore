@@ -1,0 +1,106 @@
+@{
+    ViewData["Title"] = "Thanh toán bị hủy";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark text-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Thanh toán bị hủy
+                    </h4>
+                </div>
+                <div class="card-body text-center">
+                    <div class="alert alert-warning" role="alert">
+                        <h5 class="alert-heading">Thanh toán không thành công!</h5>
+                        <p class="mb-0">Đơn hàng của bạn đã bị hủy do thanh toán không hoàn tất. Bạn có thể thử lại hoặc chọn phương thức thanh toán khác.</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <i class="fas fa-credit-card fa-3x text-muted mb-3"></i>
+                        <h5>Điều gì đã xảy ra?</h5>
+                        <p class="text-muted">
+                            Có thể bạn đã đóng cửa sổ thanh toán trước khi hoàn tất, hoặc có lỗi xảy ra trong quá trình xử lý thanh toán.
+                        </p>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-redo fa-2x text-primary mb-3"></i>
+                                    <h6>Thử lại</h6>
+                                    <p class="small text-muted">Đặt lại đơn hàng và thử thanh toán lại</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-money-bill-wave fa-2x text-success mb-3"></i>
+                                    <h6>COD</h6>
+                                    <p class="small text-muted">Chọn thanh toán khi nhận hàng</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-phone fa-2x text-info mb-3"></i>
+                                    <h6>Liên hệ</h6>
+                                    <p class="small text-muted">Gọi hotline để được hỗ trợ</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <a asp-action="Index" asp-controller="Cart" class="btn btn-outline-primary me-md-2">
+                            <i class="fas fa-shopping-cart me-2"></i>Xem giỏ hàng
+                        </a>
+                        <a asp-action="Index" asp-controller="Checkout" class="btn btn-primary me-md-2">
+                            <i class="fas fa-redo me-2"></i>Thử lại thanh toán
+                        </a>
+                        <a asp-action="Index" asp-controller="Home" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-2"></i>Về trang chủ
+                        </a>
+                    </div>
+
+                    <!-- Help Section -->
+                    <div class="mt-5 pt-4 border-top">
+                        <h6>Cần hỗ trợ?</h6>
+                        <p class="text-muted small">
+                            Nếu bạn gặp vấn đề với thanh toán, vui lòng liên hệ với chúng tôi qua:
+                        </p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="small mb-1">
+                                    <i class="fas fa-phone me-2"></i>
+                                    <strong>Hotline:</strong> 1900-xxxx
+                                </p>
+                                <p class="small mb-1">
+                                    <i class="fas fa-envelope me-2"></i>
+                                    <strong>Email:</strong> support@bookstore.com
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="small mb-1">
+                                    <i class="fas fa-clock me-2"></i>
+                                    <strong>Giờ làm việc:</strong> 8:00 - 22:00
+                                </p>
+                                <p class="small mb-1">
+                                    <i class="fas fa-calendar me-2"></i>
+                                    <strong>Thứ 2 - Chủ nhật</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

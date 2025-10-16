@@ -1,5 +1,7 @@
+using Bookstore.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Bookstore.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,10 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     .AddDefaultUI();
 
 builder.Services.AddControllersWithViews();
+
+// Register Stripe services
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+builder.Services.AddScoped<IStripePaymentService, StripePaymentService>();
 
 var app = builder.Build();
 

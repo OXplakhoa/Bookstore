@@ -9,6 +9,11 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
+        <a class="nav-link text-dark" asp-controller="Orders" asp-action="Index">
+            <i class="fas fa-shopping-bag me-1"></i>Đơn hàng của tôi
+        </a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
             Hello @UserManager.GetUserName(User)!
         </a>
