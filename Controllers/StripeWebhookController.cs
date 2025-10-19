@@ -1,13 +1,15 @@
 using Bookstore.Data;
 using Bookstore.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
 using Stripe.Checkout;
 
 namespace Bookstore.Controllers;
+    [AllowAnonymous]
     [ApiController]
-    [Route("stripe/webhook")]
+    [Route("webhook")]
     public class StripeWebhookController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -43,13 +45,13 @@ namespace Bookstore.Controllers;
 
                 switch (stripeEvent.Type)
                 {
-                    case Events.CheckoutSessionCompleted:
+                    case EventTypes.CheckoutSessionCompleted:
                         await HandleCheckoutSessionCompleted(stripeEvent);
                         break;
-                    case Events.ChargeSucceeded:
+                    case EventTypes.ChargeSucceeded:
                         await HandleChargeSucceeded(stripeEvent);
                         break;
-                    case Events.ChargeFailed:
+                    case EventTypes.ChargeFailed:
                         await HandleChargeFailed(stripeEvent);
                         break;
                     default:

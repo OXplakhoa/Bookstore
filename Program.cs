@@ -50,6 +50,13 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+//Add explicit webhook endpoint mapping
+app.MapControllerRoute(
+    name: "webhook",
+    pattern: "webhook/{action=HandleWebhook}",
+    defaults: new { controller = "StripeWebhook", action = "HandleWebhook" }
+);
+
 app.MapRazorPages(); // để Identity UI hoạt động
 
 // gọi seed roles / data ở đây (mình sẽ thêm đoạn seed ở bước tiếp theo)
