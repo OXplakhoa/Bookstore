@@ -1,0 +1,266 @@
+@model Product
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+@section Toolbar {
+    <a asp-action="Index" class="btn btn-outline-secondary me-2">
+        <i class="bi bi-arrow-left"></i> Quay lại danh sách
+    </a>
+    <a asp-action="Edit" asp-route-id="@Model.ProductId" class="btn btn-primary me-2">
+        <i class="bi bi-pencil"></i> Chỉnh sửa
+    </a>
+    <form asp-action="ToggleActive" asp-route-id="@Model.ProductId" method="post" class="d-inline me-2">
+        @Html.AntiForgeryToken()
+        @if (Model.IsActive)
+        {
+            <button type="submit" class="btn btn-warning" onclick="return confirm('Bạn có chắc muốn vô hiệu hóa sản phẩm này?')">
+                <i class="bi bi-x-circle"></i> Vô hiệu hóa
+            </button>
+        }
+        else
+        {
+            <button type="submit" class="btn btn-success" onclick="return confirm('Bạn có chắc muốn kích hoạt sản phẩm này?')">
+                <i class="bi bi-check-circle me-2"></i> Kích hoạt
+            </button>
+        }
+    </form>
+    <form asp-action="Delete" asp-route-id="@Model.ProductId" method="post" class="d-inline me-2">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn có chắc muốn xóa sản phẩm này?')">
+            <i class="bi bi-trash"></i> Xóa
+        </button>
+    </form>
+}
+
+<div class="card">
+    <div class="card-header">
+        <h4 class="mb-0">
+            <i class="bi bi-book"></i> @Model.Title
+            @if (Model.IsActive)
+            {
+                <span class="badge bg-success">Đang hoạt động</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">Đã vô hiệu hóa</span>
+            }
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Product Images Section -->
+            <div class="col-md-5">
+                @if (Model.ProductImages != null && Model.ProductImages.Any())
+                {
+                    var mainImage = Model.ProductImages.FirstOrDefault(img => img.IsMain) ?? Model.ProductImages.First();
+                    <div class="mb-3">
+                        <img src="@mainImage.ImageUrl" alt="@Model.Title" class="img-fluid rounded shadow-sm" id="mainProductImage" style="width: 100%; max-height: 500px; object-fit: cover;" data-main-image="@mainImage.ImageUrl">
+                        <div class="text-center mt-2" id="mainImageBadge">
+                            <span class="badge bg-primary">Ảnh chính</span>
+                        </div>
+                    </div>
+
+                    @if (Model.ProductImages.Count() > 1)
+                    {
+                        <div class="row g-2">
+                            @foreach (var image in Model.ProductImages)
+                            {
+                                <div class="col-4">
+                                    <img src="@image.ImageUrl" 
+                                         alt="@Model.Title" 
+                                         class="img-thumbnail @(image.ProductImageId == mainImage.ProductImageId ? "border-primary border-3" : "")" 
+                                         style="width: 100%; height: 100px; object-fit: cover; cursor: pointer;" 
+                                         data-image-url="@image.ImageUrl"
+                                         data-is-main="@image.IsMain.ToString().ToLower()"
+                                         onclick="switchImage(this, '@mainImage.ImageUrl')">
+                                    @if (image.IsMain)
+                                    {
+                                        <div class="text-center mt-1">
+                                            <small class="badge bg-primary">Chính</small>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center p-5 bg-light rounded">
+                        <i class="bi bi-image" style="font-size: 4rem; color: #ccc;"></i>
+                        <p class="text-muted mt-2">Chưa có hình ảnh</p>
+                    </div>
+                }
+            </div>
+
+            <!-- Product Details Section -->
+            <div class="col-md-7">
+                <h5 class="mb-3">Thông tin sản phẩm</h5>
+                
+                <table class="table table-borderless">
+                    <tbody>
+                        <tr>
+                            <td class="fw-bold" style="width: 150px;">
+                                <i class="bi bi-hash text-primary"></i> Mã sản phẩm:
+                            </td>
+                            <td>@Model.ProductId</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">
+                                <i class="bi bi-book text-primary"></i> Tên sách:
+                            </td>
+                            <td>@Model.Title</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">
+                                <i class="bi bi-person text-primary"></i> Tác giả:
+                            </td>
+                            <td>@Model.Author</td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">
+                                <i class="bi bi-tag text-primary"></i> Danh mục:
+                            </td>
+                            <td>
+                                @if (Model.Category != null)
+                                {
+                                    <span class="badge bg-info">@Model.Category.Name</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa phân loại</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">
+                                <i class="bi bi-cash-coin text-primary"></i> Giá:
+                            </td>
+                            <td>
+                                <span class="fs-4 text-danger fw-bold">@Model.Price.ToString("N0") ₫</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">
+                                <i class="bi bi-box-seam text-primary"></i> Tồn kho:
+                            </td>
+                            <td>
+                                @if (Model.Stock > 10)
+                                {
+                                    <span class="badge bg-success">@Model.Stock sản phẩm</span>
+                                }
+                                else if (Model.Stock > 0)
+                                {
+                                    <span class="badge bg-warning text-dark">@Model.Stock sản phẩm (Sắp hết)</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Hết hàng</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">
+                                <i class="bi bi-toggle-on text-primary"></i> Trạng thái:
+                            </td>
+                            <td>
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle"></i> Đang hoạt động
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        <i class="bi bi-x-circle"></i> Đã vô hiệu hóa
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">
+                                <i class="bi bi-calendar-plus text-primary"></i> Ngày tạo:
+                            </td>
+                            <td>@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                        @if (Model.ProductImages != null && Model.ProductImages.Any())
+                        {
+                            <tr>
+                                <td class="fw-bold">
+                                    <i class="bi bi-images text-primary"></i> Số lượng ảnh:
+                                </td>
+                                <td>@Model.ProductImages.Count() hình ảnh</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <hr />
+
+                <h5 class="mb-3">Mô tả sản phẩm</h5>
+                <div class="p-3 bg-light rounded">
+                    @if (!string.IsNullOrWhiteSpace(Model.Description))
+                    {
+                        <p class="mb-0" style="white-space: pre-line;">@Model.Description</p>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0 fst-italic">Chưa có mô tả cho sản phẩm này.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer text-muted">
+        <small>
+            <i class="bi bi-info-circle"></i> 
+            Sản phẩm này được tạo vào ngày @Model.CreatedAt.ToString("dd/MM/yyyy") lúc @Model.CreatedAt.ToString("HH:mm")
+        </small>
+    </div>
+</div>
+
+<style>
+    .table td {
+        padding: 0.75rem;
+        vertical-align: middle;
+    }
+    
+    .img-thumbnail {
+        transition: transform 0.2s;
+    }
+    
+    .img-thumbnail:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Image gallery functionality
+        function switchImage(thumbnail, mainImageUrl) {
+            const mainImage = document.getElementById('mainProductImage');
+            const mainImageBadge = document.getElementById('mainImageBadge');
+            const clickedImageUrl = thumbnail.getAttribute('data-image-url');
+            
+            // Update main image
+            mainImage.src = clickedImageUrl;
+            
+            // Show/hide "Ảnh chính" badge based on whether the selected image is the main image
+            if (clickedImageUrl === mainImageUrl) {
+                mainImageBadge.style.display = 'block';
+            } else {
+                mainImageBadge.style.display = 'none';
+            }
+            
+            // Update thumbnail borders
+            document.querySelectorAll('.img-thumbnail').forEach(img => {
+                img.classList.remove('border-primary', 'border-3');
+            });
+            thumbnail.classList.add('border-primary', 'border-3');
+        }
+    </script>
+}

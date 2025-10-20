@@ -105,3 +105,6 @@ ClientBin/
 *.publishsettings
 node_modules/
 bower_components/
+
+# Copilot instructions (personal)
+.github/copilot-instructions.md
