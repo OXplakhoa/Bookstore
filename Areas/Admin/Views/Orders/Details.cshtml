@@ -1,0 +1,246 @@
+@using System
+@using System.Globalization
+@using System.Linq
+@model Order
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng";
+    var statusOptions = ViewBag.StatusOptions as string[] ?? Array.Empty<string>();
+    string DisplayValue(string? value) => string.IsNullOrWhiteSpace(value) ? "—" : value;
+    var currencyCulture = CultureInfo.GetCultureInfo("vi-VN");
+    string FormatCurrency(decimal amount) => string.Format(currencyCulture, "{0:C0}", amount);
+    string TranslatePaymentStatus(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            return "Không rõ";
+        }
+
+        return status.Trim().ToLowerInvariant() switch
+        {
+            "paid" => "Đã thanh toán",
+            "pending" => "Chờ thanh toán",
+            "processing" => "Đang xử lý",
+            "failed" => "Thanh toán thất bại",
+            "cod" => "Thanh toán khi nhận hàng",
+            "refunded" => "Đã hoàn tiền",
+            _ => status
+        };
+    }
+
+    string TranslateOrderStatus(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            return "Không rõ";
+        }
+
+        return status.Trim().ToLowerInvariant() switch
+        {
+            "pending" => "Chờ xử lý",
+            "processing" => "Đang xử lý",
+            "shipped" => "Đã gửi hàng",
+            "delivered" => "Đã giao hàng",
+            "completed" => "Hoàn tất",
+            "cancelled" => "Đã hủy",
+            _ => status
+        };
+    }
+
+    string PaymentStatusClass(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            return "bg-secondary";
+        }
+
+        return status.Trim().ToLowerInvariant() switch
+        {
+            "paid" => "bg-success",
+            "pending" => "bg-warning text-dark",
+            "processing" => "bg-warning text-dark",
+            "failed" => "bg-danger",
+            "cod" => "bg-primary",
+            "refunded" => "bg-info text-dark",
+            _ => "bg-secondary"
+        };
+    }
+
+    string OrderStatusClass(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            return "bg-secondary";
+        }
+
+        return status.Trim().ToLowerInvariant() switch
+        {
+            "pending" => "bg-warning text-dark",
+            "processing" => "bg-warning text-dark",
+            "shipped" => "bg-primary",
+            "delivered" => "bg-success",
+            "completed" => "bg-success",
+            "cancelled" => "bg-danger",
+            _ => "bg-info text-dark"
+        };
+    }
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h1 class="mb-4">Chi tiết đơn hàng</h1>
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success" role="alert">@successMessage</div>
+}
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+
+<div class="mb-4 d-flex flex-wrap gap-3">
+    <span class="badge rounded-pill fs-6 px-4 py-3 fw-semibold @OrderStatusClass(Model.OrderStatus)">
+        Trạng thái đơn hàng: @TranslateOrderStatus(Model.OrderStatus)
+    </span>
+    <span class="badge rounded-pill fs-6 px-4 py-3 fw-semibold @PaymentStatusClass(Model.PaymentStatus)">
+        Thanh toán: @TranslatePaymentStatus(Model.PaymentStatus)
+    </span>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                Tóm tắt đơn hàng
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-5">Mã đơn</dt>
+                    <dd class="col-7">@(Model.OrderNumber ?? $"#{Model.OrderId:0000}")</dd>
+
+                    <dt class="col-5">Ngày đặt</dt>
+                    <dd class="col-7">@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                    <dt class="col-5">Thanh toán</dt>
+                    <dd class="col-7">
+                        <span class="badge rounded-pill px-3 py-2 fw-semibold @PaymentStatusClass(Model.PaymentStatus)">
+                            @TranslatePaymentStatus(Model.PaymentStatus)
+                        </span>
+                    </dd>
+
+                    <dt class="col-5">Trạng thái</dt>
+                    <dd class="col-7">
+                        <span class="badge rounded-pill px-3 py-2 fw-semibold @OrderStatusClass(Model.OrderStatus)">
+                            @TranslateOrderStatus(Model.OrderStatus)
+                        </span>
+                    </dd>
+
+                    <dt class="col-5">Tổng tiền</dt>
+                    <dd class="col-7">@FormatCurrency(Model.Total)</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-4">
+            <div class="card-header bg-light">
+                Cập nhật trạng thái
+            </div>
+            <div class="card-body">
+                <form asp-area="Admin" asp-controller="Orders" asp-action="UpdateOrderStatus" method="post" class="row g-2 align-items-center">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="orderId" value="@Model.OrderId" />
+                    <div class="col-12">
+                        <label class="form-label" for="order-status">Trạng thái hiện tại</label>
+                        <select id="order-status" class="form-select" name="newStatus">
+                        @foreach (var status in statusOptions)
+                        {
+                            var isSelected = string.Equals(Model.OrderStatus, status, StringComparison.OrdinalIgnoreCase) ? "selected" : null;
+                            var statusLabel = TranslateOrderStatus(status);
+                            <option value="@status" selected="@isSelected">@statusLabel</option>
+                        }
+                        </select>
+                    </div>
+                    <div class="col-12 d-grid">
+                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                Thông tin khách hàng & giao hàng
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="fw-semibold">Khách hàng</h5>
+                        <p class="mb-1">@DisplayValue(Model.User?.FullName)</p>
+                        <p class="mb-1">@DisplayValue(Model.User?.Email)</p>
+                        <p class="mb-0">@DisplayValue(Model.User?.PhoneNumber)</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="fw-semibold">Thông tin giao hàng</h5>
+                        <p class="mb-1">@DisplayValue(Model.ShippingName)</p>
+                        <p class="mb-1">@DisplayValue(Model.ShippingPhone)</p>
+                        <p class="mb-0">@DisplayValue(Model.ShippingAddress)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                Sản phẩm trong đơn
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Sản phẩm</th>
+                                <th scope="col">Giá</th>
+                                <th scope="col">Số lượng</th>
+                                <th scope="col" class="text-end">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @if ((Model.OrderItems?.Count ?? 0) > 0)
+                        {
+                            foreach (var item in Model.OrderItems!)
+                            {
+                                var imageUrl = item.Product?.ProductImages?.FirstOrDefault()?.ImageUrl ?? "/images/no-image.svg";
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <img src="@imageUrl" alt="@item.Product?.Title" class="rounded" style="width: 64px; height: 64px; object-fit: cover;" />
+                                            <div>
+                                                <div class="fw-semibold">@DisplayValue(item.Product?.Title)</div>
+                                                <div class="text-muted small">Mã sản phẩm: @item.ProductId</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>@FormatCurrency(item.UnitPrice)</td>
+                                    <td>@item.Quantity</td>
+                                    <td class="text-end">@FormatCurrency(item.Quantity * item.UnitPrice)</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">Đơn hàng không có sản phẩm nào.</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a asp-area="Admin" asp-controller="Orders" asp-action="Index" class="btn btn-outline-secondary">Quay lại danh sách</a>
+</div>

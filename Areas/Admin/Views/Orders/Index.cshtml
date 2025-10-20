@@ -1,0 +1,170 @@
+@using System.Globalization
+@using System.Linq
+@using Bookstore.Helpers
+@model PaginatedList<Order>
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+    var currencyCulture = CultureInfo.GetCultureInfo("vi-VN");
+    string DisplayValue(string? value) => string.IsNullOrWhiteSpace(value) ? "—" : value;
+    string FormatCurrency(decimal amount) => string.Format(currencyCulture, "{0:C0}", amount);
+    string TranslatePaymentStatus(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            return "Không rõ";
+        }
+
+        return status.Trim().ToLowerInvariant() switch
+        {
+            "paid" => "Đã thanh toán",
+            "pending" => "Chờ thanh toán",
+            "processing" => "Đang xử lý",
+            "failed" => "Thanh toán thất bại",
+            "cod" => "Thanh toán khi nhận hàng",
+            "refunded" => "Đã hoàn tiền",
+            _ => status
+        };
+    }
+
+    string TranslateOrderStatus(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            return "Không rõ";
+        }
+
+        return status.Trim().ToLowerInvariant() switch
+        {
+            "pending" => "Chờ xử lý",
+            "processing" => "Đang xử lý",
+            "shipped" => "Đã gửi hàng",
+            "delivered" => "Đã giao hàng",
+            "completed" => "Hoàn tất",
+            "cancelled" => "Đã hủy",
+            _ => status
+        };
+    }
+
+    string PaymentStatusClass(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            return "bg-secondary";
+        }
+
+        return status.Trim().ToLowerInvariant() switch
+        {
+            "paid" => "bg-success",
+            "pending" => "bg-warning text-dark",
+            "processing" => "bg-warning text-dark",
+            "failed" => "bg-danger",
+            "cod" => "bg-primary",
+            "refunded" => "bg-info text-dark",
+            _ => "bg-secondary"
+        };
+    }
+
+    string OrderStatusClass(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            return "bg-secondary";
+        }
+
+        return status.Trim().ToLowerInvariant() switch
+        {
+            "pending" => "bg-warning text-dark",
+            "processing" => "bg-warning text-dark",
+            "shipped" => "bg-primary",
+            "delivered" => "bg-success",
+            "completed" => "bg-success",
+            "cancelled" => "bg-danger",
+            _ => "bg-info text-dark"
+        };
+    }
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+@if (TempData["SuccessMessage"] is string successMessage)
+{
+    <div class="alert alert-success" role="alert">@successMessage</div>
+}
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger" role="alert">@errorMessage</div>
+}
+
+<div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead class="table-light">
+            <tr>
+                <th scope="col">Mã đơn</th>
+                <th scope="col">Khách hàng</th>
+                <th scope="col">Ngày đặt</th>
+                <th scope="col" class="text-end">Tổng tiền</th>
+                <th scope="col">Thanh toán</th>
+                <th scope="col">Trạng thái</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+        @if (Model.Any())
+        {
+            foreach (var order in Model)
+            {
+                <tr>
+                    <td>@(order.OrderNumber ?? $"#{order.OrderId:0000}")</td>
+                    <td>
+                        <div class="fw-semibold">@DisplayValue(!string.IsNullOrWhiteSpace(order.User?.FullName) ? order.User!.FullName : order.User?.Email)</div>
+                        <div class="text-muted small">@DisplayValue(order.User?.Email)</div>
+                    </td>
+                    <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td class="text-end">@FormatCurrency(order.Total)</td>
+                    <td>
+                        <span class="badge rounded-pill px-3 py-2 fw-semibold @PaymentStatusClass(order.PaymentStatus)">@TranslatePaymentStatus(order.PaymentStatus)</span>
+                    </td>
+                    <td>
+                        <span class="badge rounded-pill px-3 py-2 fw-semibold @OrderStatusClass(order.OrderStatus)">@TranslateOrderStatus(order.OrderStatus)</span>
+                    </td>
+                    <td class="text-end">
+                        <a asp-area="Admin" asp-controller="Orders" asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-sm btn-outline-primary">
+                            Chi tiết
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" class="text-center text-muted py-4">Không có đơn hàng nào.</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+            Hiển thị trang @Model.PageIndex trên tổng @Model.TotalPages trang
+        </div>
+        <nav>
+            <ul class="pagination mb-0">
+                <li class="page-item @(Model.HasPreviousPage ? string.Empty : "disabled")">
+                    <a class="page-link" asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-page="@(Model.PageIndex - 1)">Trước</a>
+                </li>
+                @for (var pageNumber = 1; pageNumber <= Model.TotalPages; pageNumber++)
+                {
+                    <li class="page-item @(pageNumber == Model.PageIndex ? "active" : string.Empty)">
+                        <a class="page-link" asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-page="@pageNumber">@pageNumber</a>
+                    </li>
+                }
+                <li class="page-item @(Model.HasNextPage ? string.Empty : "disabled")">
+                    <a class="page-link" asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-page="@(Model.PageIndex + 1)">Tiếp</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+}
