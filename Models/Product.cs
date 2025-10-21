@@ -13,4 +13,6 @@ public class Product
     public Category? Category { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public ICollection<ProductImage>? ProductImages { get; set; }
+    public virtual ICollection<FavoriteProduct>? FavoritedByUsers { get; set; } = new List<FavoriteProduct>();
+    public virtual ICollection<RecentlyViewedProduct>? ViewedByUsers { get; set; } = new List<RecentlyViewedProduct>();
 }

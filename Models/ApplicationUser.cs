@@ -11,4 +11,8 @@ public class ApplicationUser : IdentityUser
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; } = false;
+    public virtual ICollection<FavoriteProduct> FavoriteProducts { get; set; } = new List<FavoriteProduct>();
+    // One-to-many relationship with FavoriteProduct
+    public virtual ICollection<RecentlyViewedProduct> RecentlyViewedProducts { get; set; } = new List<RecentlyViewedProduct>();
+    // One-to-many relationship with RecentlyViewedProduct
 }
