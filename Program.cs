@@ -1,7 +1,9 @@
 using Bookstore.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Bookstore.Services;
+using Bookstore.Settings;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,10 @@ builder.Services.AddControllersWithViews();
 // Register Stripe services
 builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 builder.Services.AddScoped<IStripePaymentService, StripePaymentService>();
+
+// Register email services
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("SendGrid"));
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 var app = builder.Build();
 

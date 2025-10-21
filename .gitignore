@@ -41,7 +41,7 @@ bld/
 # but keep specific environment settings (and secrets) out of git.
 appsettings.*.json
 !appsettings.json
-
+appsettings.json
 # User secrets
 secrets.json
 user-secrets.json
