@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Bookstore.Services;
 
 namespace Bookstore.Areas.Identity.Pages.Account
 {
@@ -20,11 +21,13 @@ namespace Bookstore.Areas.Identity.Pages.Account
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
+        private readonly EmailTemplateService _emailTemplateService;
 
-        public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender)
+        public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender, EmailTemplateService emailTemplateService)
         {
             _userManager = userManager;
             _emailSender = emailSender;
+            _emailTemplateService = emailTemplateService;
         }
 
         /// <summary>
@@ -70,10 +73,12 @@ namespace Bookstore.Areas.Identity.Pages.Account
                     values: new { area = "Identity", code },
                     protocol: Request.Scheme);
 
+                // Sử dụng email template chuyên nghiệp
+                var emailBody = _emailTemplateService.GeneratePasswordResetTemplate(callbackUrl, Input.Email);
                 await _emailSender.SendEmailAsync(
                     Input.Email,
-                    "Reset Password",
-                    $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    "Reset Your Password - Bookstore",
+                    emailBody);
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }

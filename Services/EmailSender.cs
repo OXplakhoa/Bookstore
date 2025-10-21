@@ -35,12 +35,17 @@ public class EmailSender : IEmailSender
         {
             From = new EmailAddress(_settings.SenderEmail, _settings.SenderName),
             Subject = subject,
-            PlainTextContent = htmlMessage,
             HtmlContent = htmlMessage
         };
 
         message.AddTo(email);
-        message.SetClickTracking(false, false); // disable click tracking for simplicity
+        
+        // Tắt click tracking và open tracking để tránh spam filter
+        message.SetClickTracking(false, false);
+        message.SetOpenTracking(false);
+        
+        // Thêm plain text content để tránh spam filter
+        message.PlainTextContent = StripHtml(htmlMessage);
 
         var response = await client.SendEmailAsync(message);
         if (!response.IsSuccessStatusCode)
@@ -51,5 +56,22 @@ public class EmailSender : IEmailSender
         {
             _logger.LogInformation("Queued email to {Recipient}", email);
         }
+    }
+    
+    /// <summary>
+    /// Loại bỏ HTML tags để tạo plain text version
+    /// </summary>
+    private string StripHtml(string html)
+    {
+        if (string.IsNullOrEmpty(html))
+            return string.Empty;
+            
+        // Loại bỏ các HTML tags
+        var text = System.Text.RegularExpressions.Regex.Replace(html, "<.*?>", string.Empty);
+        // Decode HTML entities
+        text = System.Net.WebUtility.HtmlDecode(text);
+        // Loại bỏ nhiều dòng trống liên tiếp
+        text = System.Text.RegularExpressions.Regex.Replace(text, @"(\r?\n\s*){3,}", "\n\n");
+        return text.Trim();
     }
 }

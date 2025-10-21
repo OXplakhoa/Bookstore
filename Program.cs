@@ -12,6 +12,11 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// Register email services BEFORE Identity configuration
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("SendGrid"));
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.AddSingleton<EmailTemplateService>();
+
 // builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -30,10 +35,6 @@ builder.Services.AddControllersWithViews();
 // Register Stripe services
 builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 builder.Services.AddScoped<IStripePaymentService, StripePaymentService>();
-
-// Register email services
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("SendGrid"));
-builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 var app = builder.Build();
 

@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Bookstore.Services;
 
 namespace Bookstore.Areas.Identity.Pages.Account
 {
@@ -29,13 +30,15 @@ namespace Bookstore.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly EmailTemplateService _emailTemplateService;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             IUserStore<ApplicationUser> userStore,
             SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            EmailTemplateService emailTemplateService)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -43,6 +46,7 @@ namespace Bookstore.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _emailTemplateService = emailTemplateService;
         }
 
         /// <summary>
@@ -131,8 +135,9 @@ namespace Bookstore.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    // Sử dụng email template chuyên nghiệp
+                    var emailBody = _emailTemplateService.GenerateEmailConfirmationTemplate(callbackUrl, Input.Email);
+                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email - Bookstore", emailBody);
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

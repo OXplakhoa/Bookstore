@@ -84,11 +84,17 @@ namespace Bookstore.Areas.Identity.Pages.Account
             public bool RememberMe { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task OnGetAsync(string returnUrl = null, bool emailConfirmed = false)
         {
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
                 ModelState.AddModelError(string.Empty, ErrorMessage);
+            }
+            
+            // Display success message after email confirmation
+            if (emailConfirmed)
+            {
+                ViewData["SuccessMessage"] = "Thank you for confirming your email! You can now log in.";
             }
 
             returnUrl ??= Url.Content("~/");
