@@ -44,10 +44,16 @@
             <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
                 @if (Model.Products != null)
                 {
-                    @foreach (var p in Model.Products)
+                    @foreach (var product in Model.Products)
                     {
+                        var cardModel = new Bookstore.ViewModels.ProductCardViewModel
+                        {
+                            Product = product,
+                            IsFavorited = Model.FavoriteProductIds.Contains(product.ProductId),
+                            IsRecentlyViewed = Model.RecentlyViewedProductIds.Contains(product.ProductId)
+                        };
                         <div class="col">
-                            @await Html.PartialAsync("_ProductCard", p)
+                            @await Html.PartialAsync("_ProductCard", cardModel)
                         </div>
                     }
                 }

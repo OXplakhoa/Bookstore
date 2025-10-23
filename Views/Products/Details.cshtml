@@ -34,7 +34,16 @@
         </div>
 
         <div class="col-md-7">
-            <h3>@(Model.Product?.Title ?? "Product Not Found")</h3>
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h3 class="mb-0">@(Model.Product?.Title ?? "Product Not Found")</h3>
+                <button type="button"
+                        class="btn btn-link p-0 favorite-toggle"
+                        data-product-id="@Model.Product?.ProductId"
+                        title="@(Model.IsFavorited ? "Remove from Favorites" : "Add to Favorites")"
+                        aria-label="@(Model.IsFavorited ? "Remove from Favorites" : "Add to Favorites")">
+                    <i class="@(Model.IsFavorited ? "fa-solid fa-heart text-danger" : "fa-regular fa-heart")"></i>
+                </button>
+            </div>
             <p class="text-muted">Tác giả: @(Model.Product?.Author ?? "N/A")</p>
             <h4 class="text-danger">@(Model.Product?.Price.ToString("N0") ?? "0")₫</h4>
             <p><strong>Thể loại:</strong> @(Model.Product?.Category?.Name ?? "N/A")</p>
@@ -71,6 +80,23 @@
             {
                 <div class="col-6 col-md-3">
                     @await Html.PartialAsync("_ProductCard", rp)
+                </div>
+            }
+        </div>
+    }
+
+    @if (Model.RecentlyViewedProducts != null && Model.RecentlyViewedProducts.Any())
+    {
+        <hr class="my-4" />
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Recently Viewed</h5>
+            <a asp-action="RecentlyViewed" class="btn btn-sm btn-outline-secondary">View all</a>
+        </div>
+        <div class="row g-3">
+            @foreach (var recent in Model.RecentlyViewedProducts)
+            {
+                <div class="col-6 col-md-3">
+                    @await Html.PartialAsync("_ProductCard", recent)
                 </div>
             }
         </div>

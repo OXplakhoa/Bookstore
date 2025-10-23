@@ -1,0 +1,25 @@
+@model Bookstore.ViewModels.RecentlyViewedViewModel
+
+@{
+    ViewData["Title"] = "Recently Viewed";
+}
+
+<div class="container my-4">
+    <h2 class="mb-4">Recently Viewed</h2>
+
+    @if (Model.Products != null && Model.Products.Any())
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+            @foreach (var item in Model.Products)
+            {
+                <div class="col">
+                    @await Html.PartialAsync("_ProductCard", item)
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">No recently viewed books yet.</div>
+    }
+</div>

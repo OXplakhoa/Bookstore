@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Bookstore.Helpers;
 
 namespace Bookstore.ViewModels
@@ -11,6 +12,9 @@ namespace Bookstore.ViewModels
         public string? Search {get; set;}
         public int? CategoryId {get; set;}
         public string? Sort {get; set;} //Determine the sorting order
+
+        public HashSet<int> FavoriteProductIds { get; set; } = new();
+        public HashSet<int> RecentlyViewedProductIds { get; set; } = new();
 
     }
 }

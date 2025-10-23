@@ -108,3 +108,4 @@ bower_components/
 
 # Copilot instructions (personal)
 .github/copilot-instructions.md
+.github/chatmodes/Plan.chatmode.md

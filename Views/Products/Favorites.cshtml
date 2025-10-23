@@ -1,0 +1,25 @@
+@model Bookstore.ViewModels.FavoritesViewModel
+
+@{
+    ViewData["Title"] = "Favorites";
+}
+
+<div class="container my-4">
+    <h2 class="mb-4">Favorites</h2>
+
+    @if (Model.Favorites != null && Model.Favorites.Any())
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+            @foreach (var item in Model.Favorites)
+            {
+                <div class="col">
+                    @await Html.PartialAsync("_ProductCard", item)
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">You haven't added any favorites yet.</div>
+    }
+</div>

@@ -1,8 +1,12 @@
+using System.Collections.Generic;
+
 namespace Bookstore.ViewModels
 {
     public class ProductDetailsViewModel
     {
         public Product? Product { get; set; }
-        public IEnumerable<Product>? RelatedProducts { get; set; } //Loopable but not a list
+        public IEnumerable<ProductCardViewModel>? RelatedProducts { get; set; }
+        public IEnumerable<ProductCardViewModel>? RecentlyViewedProducts { get; set; }
+        public bool IsFavorited { get; set; }
     }
 }
