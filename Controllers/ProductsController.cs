@@ -1,7 +1,9 @@
 using Bookstore.Helpers;
 using Bookstore.ViewModels;
 using Bookstore.Data;
+using Bookstore.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bookstore.Controllers
@@ -9,16 +11,32 @@ namespace Bookstore.Controllers
     public class ProductsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUserActivityService _userActivityService;
         private const int DefaultPageSize = 12;
-        public ProductsController(ApplicationDbContext context)
+        public ProductsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IUserActivityService userActivityService)
         {
             _context = context;
+            _userManager = userManager;
+            _userActivityService = userActivityService;
         }
         //Get: /Products 
         // supports: ?search=xxx&categoryId=1&page=2&sort=price_asc or price_desc or newest
         public async Task<IActionResult> Index(string search, int? categoryId, int page = 1, string sort = "newest", int pageSize = DefaultPageSize)
         {
             var categories = await _context.Categories.OrderBy(c => c.Name).ToListAsync();
+
+            var userId = _userManager.GetUserId(User);
+            var favoriteProductIds = new HashSet<int>();
+            if (!string.IsNullOrEmpty(userId))
+            {
+                favoriteProductIds = await _context.FavoriteProducts
+                    .Where(fp => fp.ApplicationUserId == userId)
+                    .Select(fp => fp.ProductId)
+                    .ToHashSetAsync();
+            }
+
+            var recentlyViewedIds = new HashSet<int>(await _userActivityService.GetRecentlyViewedProductIdsAsync(userId));
 
             var query = _context.Products
                 .Include(p => p.ProductImages) //Left join
@@ -58,7 +76,9 @@ namespace Bookstore.Controllers
                 Categories = categories,
                 Search = search,
                 CategoryId = categoryId,
-                Sort = sort
+                Sort = sort,
+                FavoriteProductIds = favoriteProductIds,
+                RecentlyViewedProductIds = recentlyViewedIds
             };
             return View(vm);
         }
@@ -72,19 +92,85 @@ namespace Bookstore.Controllers
                 .FirstOrDefaultAsync(p => p.ProductId == id && p.IsActive);
             if (product == null) return NotFound();
 
+            var userId = _userManager.GetUserId(User);
+            await _userActivityService.TrackProductViewAsync(product.ProductId, userId);
+
+            var favoriteProductIds = new HashSet<int>();
+            if (!string.IsNullOrEmpty(userId))
+            {
+                favoriteProductIds = await _context.FavoriteProducts
+                    .Where(fp => fp.ApplicationUserId == userId)
+                    .Select(fp => fp.ProductId)
+                    .ToHashSetAsync();
+            }
+
             // related: same category, top 4
             var related = await _context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.Category)
                 .Where(p => p.CategoryId == product.CategoryId && p.ProductId != product.ProductId && p.IsActive)
                 .OrderByDescending(p => p.CreatedAt)
                 .Take(4)
                 .AsNoTracking() // Optimizing 
                 .ToListAsync();
-            var vm = new ProductDetailsViewModel //VM to encapsulate data 
+            var relatedCards = related
+                .Select(rp => new ProductCardViewModel
+                {
+                    Product = rp,
+                    IsFavorited = favoriteProductIds.Contains(rp.ProductId),
+                    IsRecentlyViewed = false
+                })
+                .ToList();
+
+            var recentlyViewed = await _userActivityService.GetRecentlyViewedProductsAsync(userId);
+            var recentCards = recentlyViewed
+                .Where(rv => rv.ProductId != product.ProductId)
+                .Select(rv => new ProductCardViewModel
+                {
+                    Product = rv,
+                    IsFavorited = favoriteProductIds.Contains(rv.ProductId),
+                    IsRecentlyViewed = true
+                })
+                .ToList();
+
+            var vm = new ProductDetailsViewModel
             {
                 Product = product,
-                RelatedProducts = related
+                RelatedProducts = relatedCards,
+                RecentlyViewedProducts = recentCards,
+                IsFavorited = favoriteProductIds.Contains(product.ProductId)
             };
             return View(vm);
+        }
+
+        public async Task<IActionResult> RecentlyViewed()
+        {
+            var userId = _userManager.GetUserId(User);
+            var favoriteProductIds = new HashSet<int>();
+            if (!string.IsNullOrEmpty(userId))
+            {
+                favoriteProductIds = await _context.FavoriteProducts
+                    .Where(fp => fp.ApplicationUserId == userId)
+                    .Select(fp => fp.ProductId)
+                    .ToHashSetAsync();
+            }
+
+            var recentlyViewedProducts = await _userActivityService.GetRecentlyViewedProductsAsync(userId);
+            var items = recentlyViewedProducts
+                .Select(product => new ProductCardViewModel
+                {
+                    Product = product,
+                    IsFavorited = favoriteProductIds.Contains(product.ProductId),
+                    IsRecentlyViewed = true
+                })
+                .ToList();
+
+            var vm = new RecentlyViewedViewModel
+            {
+                Products = items
+            };
+
+            return View("~/Views/Products/RecentlyViewed.cshtml", vm);
         }
     }
 }
