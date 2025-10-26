@@ -64,5 +64,25 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(p => p.ViewedByUsers)
             .HasForeignKey(rv => rv.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
+        // Configure FlashSaleProduct relationships
+        builder.Entity<FlashSaleProduct>()
+            .Property(fsp => fsp.OriginalPrice)
+            .HasColumnType("decimal(18,2)");
+        builder.Entity<FlashSaleProduct>()
+            .Property(fsp => fsp.SalePrice)
+            .HasColumnType("decimal(18,2)");
+        builder.Entity<FlashSaleProduct>()
+            .Property(fs => fs.DiscountPercentage)
+            .HasColumnType("decimal(5,2)");
+        builder.Entity<FlashSaleProduct>()
+            .HasOne(fsp => fsp.FlashSale)
+            .WithMany(fs => fs.FlashSaleProducts)
+            .HasForeignKey(fsp => fsp.FlashSaleId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.Entity<FlashSaleProduct>()
+            .HasOne(fsp => fsp.Product)
+            .WithMany() // Not need to query from Product -> FlashSales (one way navigation)
+            .HasForeignKey(fsp => fsp.ProductId)
+            .OnDelete(DeleteBehavior.Restrict); // Prevent deletion of Product if associated with FlashSaleProduct
     }
 }
