@@ -21,6 +21,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Message> Messages { get; set; }
     public DbSet<FavoriteProduct> FavoriteProducts { get; set; }
     public DbSet<RecentlyViewedProduct> RecentlyViewedProducts { get; set; }
+    public DbSet<FlashSale> FlashSales { get; set; }
+    public DbSet<FlashSaleProduct> FlashSaleProducts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
