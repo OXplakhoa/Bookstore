@@ -177,6 +177,75 @@ namespace Bookstore.Migrations
                     b.ToTable("FavoriteProducts");
                 });
 
+            modelBuilder.Entity("FlashSale", b =>
+                {
+                    b.Property<int>("FlashSaleId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FlashSaleId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("FlashSaleId");
+
+                    b.ToTable("FlashSale");
+                });
+
+            modelBuilder.Entity("FlashSaleProduct", b =>
+                {
+                    b.Property<int>("FlashSaleProductId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FlashSaleProductId"));
+
+                    b.Property<decimal>("DiscountPercentage")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("FlashSaleId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("OriginalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("SalePrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("SoldCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("StockLimit")
+                        .HasColumnType("int");
+
+                    b.HasKey("FlashSaleProductId");
+
+                    b.HasIndex("FlashSaleId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("FlashSaleProduct");
+                });
+
             modelBuilder.Entity("Message", b =>
                 {
                     b.Property<int>("MessageId")
@@ -632,6 +701,25 @@ namespace Bookstore.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("FlashSaleProduct", b =>
+                {
+                    b.HasOne("FlashSale", "FlashSale")
+                        .WithMany("FlashSaleProducts")
+                        .HasForeignKey("FlashSaleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FlashSale");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -784,6 +872,11 @@ namespace Bookstore.Migrations
             modelBuilder.Entity("Category", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("FlashSale", b =>
+                {
+                    b.Navigation("FlashSaleProducts");
                 });
 
             modelBuilder.Entity("Order", b =>
