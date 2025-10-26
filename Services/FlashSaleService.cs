@@ -1,5 +1,6 @@
 using Bookstore.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Bookstore.Services;
 
@@ -11,30 +12,42 @@ public interface IFlashSaleService
     Task<decimal> GetEffectivePriceAsync(int productId, decimal originalPrice);
     Task<bool> CanPurchaseAtFlashPriceAsync(int flashSaleProductId, int quantity);
     Task IncrementSoldCountAsync(int flashSaleProductId, int quantity);
+    void InvalidateProductFlashSaleCache(int productId);
+    void InvalidateFlashSaleCache(int flashSaleId);
 }
 
 public class FlashSaleService : IFlashSaleService
 {
     private readonly ApplicationDbContext _context;
-    public FlashSaleService(ApplicationDbContext context)
+    private readonly IMemoryCache _cache;
+    public FlashSaleService(ApplicationDbContext context, IMemoryCache cache)
     {
         _context = context;
+        _cache = cache;
     }
     public async Task<FlashSaleProduct?> GetActiveFlashSaleForProductAsync(int productId)
     {
         var now = DateTime.UtcNow;
+        var cacheKey = $"flash_sale_{productId}"; //Cache key based on product ID
+        if(!_cache.TryGetValue(cacheKey, out FlashSaleProduct? flashSale)) 
+        {
+            flashSale = await _context.FlashSaleProducts
+                .AsNoTracking() //Read-only query optimization
+                .Include(fsp => fsp.FlashSale) //Join with FlashSale
+                .Where(fsp =>
+                    fsp.ProductId == productId &&
+                    fsp.FlashSale!.IsActive &&
+                    fsp.FlashSale.StartDate <= now &&
+                    fsp.FlashSale.EndDate >= now
+                )
+                .OrderByDescending(fsp => fsp.DiscountPercentage)
+                .FirstOrDefaultAsync();
+            var cacheOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(5)); //Cache for 5 minutes
+            _cache.Set(cacheKey, flashSale, cacheOptions);
+        }
 
-        return await _context.FlashSaleProducts
-            .AsNoTracking() //Read-only query optimization
-            .Include(fsp => fsp.FlashSale) //Join with FlashSale
-            .Where(fsp =>
-                fsp.ProductId == productId &&
-                fsp.FlashSale!.IsActive &&
-                fsp.FlashSale.StartDate <= now &&
-                fsp.FlashSale.EndDate >= now
-            )
-            .OrderByDescending(fsp => fsp.DiscountPercentage)
-            .FirstOrDefaultAsync();
+        return flashSale;
     }
     public async Task<Dictionary<int, FlashSaleProduct>> GetActiveFlashSalesForProductsAsync(IEnumerable<int> productIds)
     {
@@ -103,5 +116,23 @@ public class FlashSaleService : IFlashSaleService
             throw new InvalidOperationException($"FlashSaleProduct with ID {flashSaleProductId} not found.");
         flashSaleProduct.SoldCount += quantity; //Increase with quantity since in one order can buy multiple items
         await _context.SaveChangesAsync();
+    }
+    public void InvalidateProductFlashSaleCache(int productId)
+    {
+        var cacheKey = $"flash_sale_{productId}";
+        _cache.Remove(cacheKey);
+    }
+    public void InvalidateFlashSaleCache(int flashSaleId)
+    {
+        // Get all product IDs associated with the flash sale
+        var productIds = _context.FlashSaleProducts
+            .Where(fsp => fsp.FlashSaleId == flashSaleId)
+            .Select(fsp => fsp.ProductId) // Take only ProductId
+            .ToList();
+
+        foreach (var productId in productIds)
+        {
+            InvalidateProductFlashSaleCache(productId);
+        }
     }
 }
