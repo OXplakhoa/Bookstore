@@ -208,10 +208,11 @@ public class FlashSalesController : Controller
 
         var availableProducts = await _context.Products
             .Where(p => !existingProductIds.Contains(p.ProductId)) // Exclude products already in the flash sale
-            .Select(p => new SelectListItem
+            .Select(p => new 
             {
-                Value = p.ProductId.ToString(),
-                Text = $"{p.Title} - {p.Price:C}"
+                p.ProductId,
+                p.Title,
+                p.Price
             })
             .ToListAsync();
 
@@ -264,7 +265,7 @@ public class FlashSalesController : Controller
         {
             FlashSaleId = model.FlashSaleId,
             ProductId = model.ProductId,
-            OriginalPrice = model.OriginalPrice,
+            OriginalPrice = product.Price, // ← Get from product, not model
             SalePrice = model.SalePrice,
             DiscountPercentage = (product.Price - model.SalePrice) / product.Price * 100,
             StockLimit = model.StockLimit,

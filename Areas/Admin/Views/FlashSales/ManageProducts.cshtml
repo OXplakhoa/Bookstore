@@ -5,7 +5,7 @@
     ViewData["Title"] = "Quản lý sản phẩm Flash Sale";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
     var flashSale = ViewBag.FlashSale as FlashSale;
-    var availableProducts = ViewBag.AvailableProducts as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+    var availableProducts = ViewBag.AvailableProducts as IEnumerable<dynamic>;
 }
 
 <div class="container-fluid">
@@ -87,12 +87,12 @@
                                             </td>
                                             <td>
                                                 <span class="text-decoration-line-through text-muted">
-                                                    @item.OriginalPrice.ToString("C")
+                                                    @item.OriginalPrice.ToString("N0") ₫
                                                 </span>
                                             </td>
                                             <td>
                                                 <strong class="text-danger">
-                                                    @item.SalePrice.ToString("C")
+                                                    @item.SalePrice.ToString("N0") ₫
                                                 </strong>
                                             </td>
                                             <td>
@@ -157,8 +157,8 @@
                                 {
                                     @foreach (var product in availableProducts)
                                     {
-                                        <option value="@product.Value" data-price="@product.Text.Split('-').Last().Trim()">
-                                            @product.Text
+                                        <option value="@product.ProductId" data-price="@product.Price">
+                                            @product.Title - @product.Price.ToString("N0") ₫
                                         </option>
                                     }
                                 }
@@ -221,17 +221,17 @@
                 const selectedOption = productSelect.options[productSelect.selectedIndex];
                 if (!selectedOption.value) return;
                 
-                const priceText = selectedOption.getAttribute('data-price');
-                const originalPrice = parseFloat(priceText.replace(/[^\d.]/g, ''));
+                const originalPrice = parseFloat(selectedOption.getAttribute('data-price'));
                 const salePrice = parseFloat(salePriceInput.value);
                 
                 if (salePrice && salePrice > 0 && originalPrice > 0) {
                     const discount = ((originalPrice - salePrice) / originalPrice) * 100;
+                    const savings = originalPrice - salePrice;
                     
                     if (salePrice >= originalPrice) {
                         discountInfo.innerHTML = '<span class="text-danger">⚠️ Giá khuyến mãi phải nhỏ hơn giá gốc!</span>';
                     } else {
-                        discountInfo.innerHTML = `<span class="text-success">✓ Giảm <strong>${discount.toFixed(0)}%</strong> (Tiết kiệm ${(originalPrice - salePrice).toLocaleString('vi-VN')}₫)</span>`;
+                        discountInfo.innerHTML = `<span class="text-success">✓ Giảm <strong>${discount.toFixed(0)}%</strong> (Tiết kiệm ${savings.toLocaleString('vi-VN')} ₫)</span>`;
                     }
                 } else {
                     discountInfo.innerHTML = '';
