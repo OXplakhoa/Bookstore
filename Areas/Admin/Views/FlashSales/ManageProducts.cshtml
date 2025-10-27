@@ -1,0 +1,245 @@
+@* filepath: f:\code\NET\Bookstore\Areas\Admin\Views\FlashSales\ManageProducts.cshtml *@
+@model IEnumerable<FlashSaleProduct>
+
+@{
+    ViewData["Title"] = "Quản lý sản phẩm Flash Sale";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var flashSale = ViewBag.FlashSale as FlashSale;
+    var availableProducts = ViewBag.AvailableProducts as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>;
+}
+
+<div class="container-fluid">
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-action="Index">Flash Sales</a></li>
+                <li class="breadcrumb-item active">Quản lý sản phẩm</li>
+            </ol>
+        </nav>
+        <h1 class="h3">
+            <i class="bi bi-box-seam text-primary"></i> 
+            Quản lý sản phẩm: <strong>@flashSale?.Name</strong>
+        </h1>
+        <p class="text-muted">
+            <i class="bi bi-calendar-event"></i>
+            @flashSale?.StartDate.ToString("dd/MM/yyyy HH:mm") - @flashSale?.EndDate.ToString("dd/MM/yyyy HH:mm")
+        </p>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="row">
+        <!-- Left Panel: Products in Flash Sale -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-check"></i> 
+                        Sản phẩm trong Flash Sale (@Model.Count())
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-5">
+                            <i class="bi bi-inbox display-3 text-muted"></i>
+                            <p class="mt-3 text-muted">Chưa có sản phẩm nào trong Flash Sale này.</p>
+                            <p class="text-muted">Sử dụng form bên phải để thêm sản phẩm.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th>Giá gốc</th>
+                                        <th>Giá Sale</th>
+                                        <th>Giảm giá</th>
+                                        <th>Giới hạn</th>
+                                        <th>Đã bán</th>
+                                        <th class="text-end">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@item.Product?.Title</strong>
+                                                <br />
+                                                <small class="text-muted">ID: @item.ProductId</small>
+                                            </td>
+                                            <td>
+                                                <span class="text-decoration-line-through text-muted">
+                                                    @item.OriginalPrice.ToString("C")
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <strong class="text-danger">
+                                                    @item.SalePrice.ToString("C")
+                                                </strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success">
+                                                    -@item.DiscountPercentage.ToString("F0")%
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (item.StockLimit.HasValue)
+                                                {
+                                                    <span class="badge bg-warning text-dark">
+                                                        @item.StockLimit
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Không giới hạn</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">@item.SoldCount</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <form asp-action="RemoveProduct" asp-route-id="@item.FlashSaleProductId" 
+                                                      method="post" class="d-inline"
+                                                      onsubmit="return confirm('Xóa sản phẩm này khỏi Flash Sale?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                        <i class="bi bi-trash"></i> Xóa
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Add Product Form -->
+        <div class="col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-plus-circle"></i> 
+                        Thêm sản phẩm mới
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="AddProduct" method="post" id="addProductForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="FlashSaleId" value="@flashSale?.FlashSaleId" />
+                        
+                        <div class="mb-3">
+                            <label for="ProductId" class="form-label">Chọn sản phẩm</label>
+                            <select name="ProductId" id="ProductId" class="form-select" required>
+                                <option value="">-- Chọn sản phẩm --</option>
+                                @if (availableProducts != null)
+                                {
+                                    @foreach (var product in availableProducts)
+                                    {
+                                        <option value="@product.Value" data-price="@product.Text.Split('-').Last().Trim()">
+                                            @product.Text
+                                        </option>
+                                    }
+                                }
+                            </select>
+                            @if (availableProducts == null || !availableProducts.Any())
+                            {
+                                <small class="text-muted">Tất cả sản phẩm đã được thêm vào Flash Sale này.</small>
+                            }
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="SalePrice" class="form-label">Giá khuyến mãi</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₫</span>
+                                <input type="number" name="SalePrice" id="SalePrice" 
+                                       class="form-control" step="0.01" min="0.01" required />
+                            </div>
+                            <small class="text-muted" id="discountInfo"></small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="StockLimit" class="form-label">Giới hạn số lượng (tùy chọn)</label>
+                            <input type="number" name="StockLimit" id="StockLimit" 
+                                   class="form-control" min="0" 
+                                   placeholder="Để trống = không giới hạn" />
+                            <small class="text-muted">
+                                VD: Chỉ bán 100 sản phẩm với giá Flash Sale
+                            </small>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Lưu ý:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Giá khuyến mãi phải nhỏ hơn giá gốc</li>
+                                <li>Sản phẩm không được trong Flash Sale active khác</li>
+                            </ul>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100" 
+                                @(availableProducts == null || !availableProducts.Any() ? "disabled" : "")>
+                            <i class="bi bi-plus-circle"></i> Thêm sản phẩm
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-calculate discount percentage
+        document.addEventListener('DOMContentLoaded', function() {
+            const productSelect = document.getElementById('ProductId');
+            const salePriceInput = document.getElementById('SalePrice');
+            const discountInfo = document.getElementById('discountInfo');
+            
+            function calculateDiscount() {
+                const selectedOption = productSelect.options[productSelect.selectedIndex];
+                if (!selectedOption.value) return;
+                
+                const priceText = selectedOption.getAttribute('data-price');
+                const originalPrice = parseFloat(priceText.replace(/[^\d.]/g, ''));
+                const salePrice = parseFloat(salePriceInput.value);
+                
+                if (salePrice && salePrice > 0 && originalPrice > 0) {
+                    const discount = ((originalPrice - salePrice) / originalPrice) * 100;
+                    
+                    if (salePrice >= originalPrice) {
+                        discountInfo.innerHTML = '<span class="text-danger">⚠️ Giá khuyến mãi phải nhỏ hơn giá gốc!</span>';
+                    } else {
+                        discountInfo.innerHTML = `<span class="text-success">✓ Giảm <strong>${discount.toFixed(0)}%</strong> (Tiết kiệm ${(originalPrice - salePrice).toLocaleString('vi-VN')}₫)</span>`;
+                    }
+                } else {
+                    discountInfo.innerHTML = '';
+                }
+            }
+            
+            productSelect.addEventListener('change', calculateDiscount);
+            salePriceInput.addEventListener('input', calculateDiscount);
+        });
+    </script>
+}

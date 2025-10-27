@@ -63,7 +63,7 @@ public class FlashSalesController : Controller
     public IActionResult Create()
     {
         // Set default dates: start now, end in 7 days
-        var model = new FlashSaleViewModel
+        var model = new FlashSale
         {
             StartDate = DateTime.UtcNow,
             EndDate = DateTime.UtcNow.AddDays(7),

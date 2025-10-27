@@ -1,0 +1,101 @@
+@* filepath: f:\code\NET\Bookstore\Areas\Admin\Views\FlashSales\Create.cshtml *@
+@model FlashSale
+
+@{
+    ViewData["Title"] = "Tạo Flash Sale mới";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-lightning-charge-fill"></i> 
+                        Tạo Flash Sale mới
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Tên Flash Sale</label>
+                            <input asp-for="Name" class="form-control" placeholder="VD: Black Friday 2024" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Mô tả</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" 
+                                      placeholder="Mô tả ngắn về Flash Sale này..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="StartDate" class="form-label">Ngày bắt đầu</label>
+                                <input asp-for="StartDate" type="datetime-local" class="form-control" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="EndDate" class="form-label">Ngày kết thúc</label>
+                                <input asp-for="EndDate" type="datetime-local" class="form-control" />
+                                <span asp-validation-for="EndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsActive" class="form-check-label">
+                                    Kích hoạt Flash Sale ngay
+                                </label>
+                            </div>
+                            <small class="text-muted">
+                                Flash Sale sẽ tự động hiển thị khi đến thời gian bắt đầu
+                            </small>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Lưu ý:</strong> Sau khi tạo Flash Sale, bạn cần thêm sản phẩm vào sale.
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Tạo Flash Sale
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Set default dates if empty
+        document.addEventListener('DOMContentLoaded', function() {
+            const startDateInput = document.querySelector('input[name="StartDate"]');
+            const endDateInput = document.querySelector('input[name="EndDate"]');
+            
+            if (!startDateInput.value) {
+                const now = new Date();
+                startDateInput.value = now.toISOString().slice(0, 16);
+            }
+            
+            if (!endDateInput.value) {
+                const future = new Date();
+                future.setDate(future.getDate() + 7);
+                endDateInput.value = future.toISOString().slice(0, 16);
+            }
+        });
+    </script>
+}

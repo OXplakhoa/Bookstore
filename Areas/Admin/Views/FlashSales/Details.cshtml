@@ -1,0 +1,125 @@
+@* filepath: f:\code\NET\Bookstore\Areas\Admin\Views\FlashSales\Details.cshtml *@
+@model FlashSale
+
+@{
+    ViewData["Title"] = "Chi tiết Flash Sale";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var now = DateTime.UtcNow;
+    var isActive = Model.IsActive && Model.StartDate <= now && Model.EndDate >= now;
+    var isUpcoming = Model.StartDate > now;
+    var isExpired = Model.EndDate < now;
+}
+
+<div class="container">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Flash Sales</a></li>
+            <li class="breadcrumb-item active">Chi tiết</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    <i class="bi bi-lightning-charge-fill"></i> 
+                    @Model.Name
+                </h4>
+                <span class="badge @(isActive ? "bg-success" : isUpcoming ? "bg-info" : "bg-secondary")">
+                    @(isActive ? "Đang hoạt động" : isUpcoming ? "Sắp diễn ra" : "Đã kết thúc")
+                </span>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Thông tin Flash Sale</h5>
+                    <table class="table">
+                        <tr>
+                            <th width="40%">Tên:</th>
+                            <td>@Model.Name</td>
+                        </tr>
+                        <tr>
+                            <th>Mô tả:</th>
+                            <td>@(Model.Description ?? "Không có mô tả")</td>
+                        </tr>
+                        <tr>
+                            <th>Ngày bắt đầu:</th>
+                            <td>
+                                <i class="bi bi-calendar-event text-primary"></i>
+                                @Model.StartDate.ToString("dd/MM/yyyy HH:mm")
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Ngày kết thúc:</th>
+                            <td>
+                                <i class="bi bi-calendar-check text-danger"></i>
+                                @Model.EndDate.ToString("dd/MM/yyyy HH:mm")
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Trạng thái:</th>
+                            <td>
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Inactive</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Ngày tạo:</th>
+                            <td>@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h5>Thống kê</h5>
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="border rounded p-3">
+                                <h2 class="text-primary mb-0">@Model.FlashSaleProducts?.Count</h2>
+                                <small class="text-muted">Sản phẩm</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="border rounded p-3">
+                                <h2 class="text-success mb-0">@Model.FlashSaleProducts?.Sum(fsp => fsp.SoldCount)</h2>
+                                <small class="text-muted">Đã bán</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if (isActive)
+                    {
+                        var timeRemaining = Model.EndDate - now;
+                        <div class="alert alert-warning">
+                            <i class="bi bi-clock"></i>
+                            <strong>Thời gian còn lại:</strong>
+                            @timeRemaining.Days ngày @timeRemaining.Hours giờ @timeRemaining.Minutes phút
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Quay lại
+                </a>
+                <div>
+                    <a asp-action="ManageProducts" asp-route-id="@Model.FlashSaleId" class="btn btn-success">
+                        <i class="bi bi-box-seam"></i> Quản lý sản phẩm
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@Model.FlashSaleId" class="btn btn-warning">
+                        <i class="bi bi-pencil"></i> Chỉnh sửa
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
