@@ -282,6 +282,48 @@ public class FlashSalesController : Controller
 
     }
     
+    // POST: Admin/FlashSales/UpdateProduct
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateProduct(int FlashSaleProductId, int FlashSaleId, int ProductId, decimal SalePrice, int? StockLimit)
+    {
+        var flashSaleProduct = await _context.FlashSaleProducts.FindAsync(FlashSaleProductId);
+        if (flashSaleProduct == null)
+        {
+            TempData["ErrorMessage"] = "Không tìm thấy sản phẩm trong Flash Sale.";
+            return RedirectToAction(nameof(ManageProducts), new { id = FlashSaleId });
+        }
+
+        // Get product to validate price
+        var product = await _context.Products.FindAsync(ProductId);
+        if (product == null)
+        {
+            TempData["ErrorMessage"] = "Sản phẩm không tồn tại.";
+            return RedirectToAction(nameof(ManageProducts), new { id = FlashSaleId });
+        }
+
+        // Validate: SalePrice < OriginalPrice
+        if (SalePrice >= flashSaleProduct.OriginalPrice)
+        {
+            TempData["ErrorMessage"] = "Giá khuyến mãi phải nhỏ hơn giá gốc.";
+            return RedirectToAction(nameof(ManageProducts), new { id = FlashSaleId });
+        }
+
+        // Update properties
+        flashSaleProduct.SalePrice = SalePrice;
+        flashSaleProduct.StockLimit = StockLimit;
+        flashSaleProduct.DiscountPercentage = ((flashSaleProduct.OriginalPrice - SalePrice) / flashSaleProduct.OriginalPrice) * 100;
+
+        _context.Update(flashSaleProduct);
+        await _context.SaveChangesAsync();
+
+        // Invalidate cache after update
+        _flashSaleService.InvalidateProductFlashSaleCache(ProductId);
+
+        TempData["SuccessMessage"] = "Cập nhật sản phẩm thành công!";
+        return RedirectToAction(nameof(ManageProducts), new { id = FlashSaleId });
+    }
+
     // POST: Admin/FlashSales/RemoveProduct
     [HttpPost]
     [ValidateAntiForgeryToken]

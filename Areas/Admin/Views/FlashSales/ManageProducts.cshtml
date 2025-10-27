@@ -116,12 +116,18 @@
                                                 <span class="badge bg-info">@item.SoldCount</span>
                                             </td>
                                             <td class="text-end">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#editModal@(item.FlashSaleProductId)"
+                                                        title="Chỉnh sửa">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
                                                 <form asp-action="RemoveProduct" asp-route-id="@item.FlashSaleProductId" 
                                                       method="post" class="d-inline"
                                                       onsubmit="return confirm('Xóa sản phẩm này khỏi Flash Sale?');">
                                                     @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                        <i class="bi bi-trash"></i> Xóa
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
+                                                        <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>
                                             </td>
@@ -130,6 +136,92 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        @* Edit Modals for each product *@
+                        @foreach (var item in Model)
+                        {
+                            <div class="modal fade" id="editModal@(item.FlashSaleProductId)" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-primary text-white">
+                                            <h5 class="modal-title">
+                                                <i class="bi bi-pencil"></i> Chỉnh sửa sản phẩm
+                                            </h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form asp-action="UpdateProduct" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="FlashSaleProductId" value="@item.FlashSaleProductId" />
+                                            <input type="hidden" name="FlashSaleId" value="@item.FlashSaleId" />
+                                            <input type="hidden" name="ProductId" value="@item.ProductId" />
+                                            
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Sản phẩm</label>
+                                                    <p class="form-control-plaintext">@item.Product?.Title</p>
+                                                </div>
+                                                
+                                                <div class="mb-3">
+                                                    <label class="form-label">Giá gốc</label>
+                                                    <input type="text" class="form-control" 
+                                                           value="@item.OriginalPrice.ToString("N0") ₫" disabled />
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="SalePrice_@item.FlashSaleProductId" class="form-label">
+                                                        Giá khuyến mãi <span class="text-danger">*</span>
+                                                    </label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">₫</span>
+                                                        <input type="number" 
+                                                               name="SalePrice" 
+                                                               id="SalePrice_@item.FlashSaleProductId"
+                                                               class="form-control sale-price-input" 
+                                                               value="@item.SalePrice" 
+                                                               step="0.01" 
+                                                               min="0.01" 
+                                                               max="@item.OriginalPrice"
+                                                               data-original="@item.OriginalPrice"
+                                                               required />
+                                                    </div>
+                                                    <small class="text-muted discount-info-@item.FlashSaleProductId"></small>
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label for="StockLimit_@item.FlashSaleProductId" class="form-label">
+                                                        Giới hạn số lượng
+                                                    </label>
+                                                    <input type="number" 
+                                                           name="StockLimit" 
+                                                           id="StockLimit_@item.FlashSaleProductId"
+                                                           class="form-control" 
+                                                           value="@item.StockLimit" 
+                                                           min="0" 
+                                                           placeholder="Để trống = không giới hạn" />
+                                                    <small class="text-muted">
+                                                        Đã bán: @item.SoldCount
+                                                    </small>
+                                                </div>
+
+                                                <div class="alert alert-info mb-0">
+                                                    <i class="bi bi-info-circle"></i>
+                                                    Giá khuyến mãi phải nhỏ hơn giá gốc
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                    <i class="bi bi-x-circle"></i> Hủy
+                                                </button>
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="bi bi-save"></i> Lưu thay đổi
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
                     }
                 </div>
             </div>
@@ -211,8 +303,8 @@
 
 @section Scripts {
     <script>
-        // Auto-calculate discount percentage
         document.addEventListener('DOMContentLoaded', function() {
+            // Auto-calculate discount percentage for Add Product form
             const productSelect = document.getElementById('ProductId');
             const salePriceInput = document.getElementById('SalePrice');
             const discountInfo = document.getElementById('discountInfo');
@@ -240,6 +332,30 @@
             
             productSelect.addEventListener('change', calculateDiscount);
             salePriceInput.addEventListener('input', calculateDiscount);
+
+            // Auto-calculate discount for Edit modals
+            const editInputs = document.querySelectorAll('.sale-price-input');
+            editInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const originalPrice = parseFloat(this.getAttribute('data-original'));
+                    const salePrice = parseFloat(this.value);
+                    const itemId = this.id.split('_')[1];
+                    const infoElement = document.querySelector('.discount-info-' + itemId);
+                    
+                    if (salePrice && salePrice > 0 && originalPrice > 0) {
+                        const discount = ((originalPrice - salePrice) / originalPrice) * 100;
+                        const savings = originalPrice - salePrice;
+                        
+                        if (salePrice >= originalPrice) {
+                            infoElement.innerHTML = '<span class="text-danger">⚠️ Giá khuyến mãi phải nhỏ hơn giá gốc!</span>';
+                        } else {
+                            infoElement.innerHTML = `<span class="text-success">✓ Giảm <strong>${discount.toFixed(0)}%</strong> (Tiết kiệm ${savings.toLocaleString('vi-VN')} ₫)</span>`;
+                        }
+                    } else {
+                        infoElement.innerHTML = '';
+                    }
+                });
+            });
         });
     </script>
 }
