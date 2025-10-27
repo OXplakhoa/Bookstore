@@ -119,11 +119,13 @@ public class FlashSaleService : IFlashSaleService
     }
     public void InvalidateProductFlashSaleCache(int productId)
     {
+        // Use to remove cache for specific product
         var cacheKey = $"flash_sale_{productId}";
         _cache.Remove(cacheKey);
     }
     public void InvalidateFlashSaleCache(int flashSaleId)
     {
+        // Use to remove cache for all products in a specific flash sale
         // Get all product IDs associated with the flash sale
         var productIds = _context.FlashSaleProducts
             .Where(fsp => fsp.FlashSaleId == flashSaleId)
