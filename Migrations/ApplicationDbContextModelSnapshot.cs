@@ -205,7 +205,7 @@ namespace Bookstore.Migrations
 
                     b.HasKey("FlashSaleId");
 
-                    b.ToTable("FlashSale");
+                    b.ToTable("FlashSales");
                 });
 
             modelBuilder.Entity("FlashSaleProduct", b =>
@@ -243,7 +243,7 @@ namespace Bookstore.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("FlashSaleProduct");
+                    b.ToTable("FlashSaleProducts");
                 });
 
             modelBuilder.Entity("Message", b =>
