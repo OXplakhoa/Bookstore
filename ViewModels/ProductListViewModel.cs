@@ -16,5 +16,7 @@ namespace Bookstore.ViewModels
         public HashSet<int> FavoriteProductIds { get; set; } = new();
         public HashSet<int> RecentlyViewedProductIds { get; set; } = new();
 
+        // Flash Sale dictionary: ProductId -> FlashSaleProduct
+        public Dictionary<int, FlashSaleProduct> FlashSales { get; set; } = new();
     }
 }

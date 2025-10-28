@@ -13,12 +13,14 @@ namespace Bookstore.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUserActivityService _userActivityService;
+        private readonly IFlashSaleService _flashSaleService;
         private const int DefaultPageSize = 12;
-        public ProductsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IUserActivityService userActivityService)
+        public ProductsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IUserActivityService userActivityService, IFlashSaleService flashSaleService)
         {
             _context = context;
             _userManager = userManager;
             _userActivityService = userActivityService;
+            _flashSaleService = flashSaleService;
         }
         //Get: /Products 
         // supports: ?search=xxx&categoryId=1&page=2&sort=price_asc or price_desc or newest
