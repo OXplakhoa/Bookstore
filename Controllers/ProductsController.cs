@@ -66,12 +66,16 @@ namespace Bookstore.Controllers
                 "title_desc" => query.OrderByDescending(p => p.Title),
                 _ => query.OrderByDescending(p => p.CreatedAt) //default case: newest
             };
-            
+
             var paged = await PaginatedList<Product>.CreateAsync(
                 query.AsNoTracking(), //Not to track unnecessary data
-                Math.Max(page,1), //Guarantee page number never < 1
+                Math.Max(page, 1), //Guarantee page number never < 1
                 pageSize);
-            
+
+            // Get flash sales for all products in the current page (12 products) => using paged not _context.Products
+            var products = paged.Select(p => p.ProductId).ToList();
+            var flashSales = await _flashSaleService.GetActiveFlashSalesForProductsAsync(products);
+
             var vm = new ProductListViewModel
             {
                 Products = paged,
@@ -80,8 +84,10 @@ namespace Bookstore.Controllers
                 CategoryId = categoryId,
                 Sort = sort,
                 FavoriteProductIds = favoriteProductIds,
-                RecentlyViewedProductIds = recentlyViewedIds
+                RecentlyViewedProductIds = recentlyViewedIds,
+                FlashSales = flashSales
             };
+
             return View(vm);
         }
         // Get: /Products/Details/5 or  /Products/Details/5?slug=...
@@ -106,6 +112,9 @@ namespace Bookstore.Controllers
                     .ToHashSetAsync();
             }
 
+            // Get flash sale for this current product
+            var flashSale = await _flashSaleService.GetActiveFlashSaleForProductAsync(product.ProductId);
+
             // related: same category, top 4
             var related = await _context.Products
                 .Include(p => p.ProductImages)
@@ -115,23 +124,35 @@ namespace Bookstore.Controllers
                 .Take(4)
                 .AsNoTracking() // Optimizing 
                 .ToListAsync();
+
+            // Get flash sales for related products
+            var relatedProductIds = related.Select(rp => rp.ProductId).ToList();
+            var relatedFlashSales = await _flashSaleService.GetActiveFlashSalesForProductsAsync(relatedProductIds);
+
             var relatedCards = related
                 .Select(rp => new ProductCardViewModel
                 {
                     Product = rp,
                     IsFavorited = favoriteProductIds.Contains(rp.ProductId),
-                    IsRecentlyViewed = false
+                    IsRecentlyViewed = false,
+                    FlashSale = relatedFlashSales.TryGetValue(rp.ProductId, out var relatedFlashSale) ? relatedFlashSale : null // Avoid KeyNotFoundException & Double Lookup
                 })
                 .ToList();
 
             var recentlyViewed = await _userActivityService.GetRecentlyViewedProductsAsync(userId);
+
+            // Get flash sales for recently viewed products
+            var recentProductIds = recentlyViewed.Select(rv => rv.ProductId).ToList();
+            var recentFlashSales = await _flashSaleService.GetActiveFlashSalesForProductsAsync(recentProductIds);
+
             var recentCards = recentlyViewed
                 .Where(rv => rv.ProductId != product.ProductId)
                 .Select(rv => new ProductCardViewModel
                 {
                     Product = rv,
                     IsFavorited = favoriteProductIds.Contains(rv.ProductId),
-                    IsRecentlyViewed = true
+                    IsRecentlyViewed = true,
+                    FlashSale = recentFlashSales.TryGetValue(rv.ProductId, out var recentFlashSale) ? recentFlashSale : null // Avoid KeyNotFoundException & Double Lookup
                 })
                 .ToList();
 
@@ -140,7 +161,8 @@ namespace Bookstore.Controllers
                 Product = product,
                 RelatedProducts = relatedCards,
                 RecentlyViewedProducts = recentCards,
-                IsFavorited = favoriteProductIds.Contains(product.ProductId)
+                IsFavorited = favoriteProductIds.Contains(product.ProductId),
+                FlashSale = flashSale
             };
             return View(vm);
         }
@@ -158,15 +180,21 @@ namespace Bookstore.Controllers
             }
 
             var recentlyViewedProducts = await _userActivityService.GetRecentlyViewedProductsAsync(userId);
+
+            // Get flash sales for recently viewed products
+            var productIds = recentlyViewedProducts.Select(rv => rv.ProductId).ToList();
+            var flashSales = await _flashSaleService.GetActiveFlashSalesForProductsAsync(productIds);
+
             var items = recentlyViewedProducts
                 .Select(product => new ProductCardViewModel
                 {
                     Product = product,
                     IsFavorited = favoriteProductIds.Contains(product.ProductId),
-                    IsRecentlyViewed = true
+                    IsRecentlyViewed = true,
+                    FlashSale = flashSales.TryGetValue(product.ProductId, out var flashSale) ? flashSale : null // Avoid KeyNotFoundException & Double Lookup
                 })
                 .ToList();
-
+            
             var vm = new RecentlyViewedViewModel
             {
                 Products = items

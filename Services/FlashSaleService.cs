@@ -68,8 +68,8 @@ public class FlashSaleService : IFlashSaleService
         return activeFlashSales
             .GroupBy(fsp => fsp.ProductId)
             .ToDictionary(
-                g => g.Key,
-                g => g.OrderByDescending(fsp => fsp.DiscountPercentage).First()
+                g => g.Key, // Key
+                g => g.OrderByDescending(fsp => fsp.DiscountPercentage).First() // Value
                 // For each product, take the flash sale with the highest discount
             );
     }
