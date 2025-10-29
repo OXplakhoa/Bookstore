@@ -1,3 +1,4 @@
+@* filepath: f:\code\NET\Bookstore\Views\Shared\_ProductCard.cshtml *@
 @model Bookstore.ViewModels.ProductCardViewModel
 
 @{
@@ -6,12 +7,23 @@
     var imageUrl = mainImage?.ImageUrl ?? Url.Content("~/images/no-image.svg");
     var heartClasses = Model.IsFavorited ? "fa-solid fa-heart text-danger" : "fa-regular fa-heart";
     var heartTitle = Model.IsFavorited ? "Remove from Favorites" : "Add to Favorites";
+    var hasFlashSale = Model.HasFlashSale;
+    var effectivePrice = Model.EffectivePrice;
 }
 
-<div class="card h-100">
+<div class="card h-100 product-card @(hasFlashSale ? "flash-sale-card" : "")">
+    @if (hasFlashSale)
+    {
+        <div class="flash-sale-badge">
+            <i class="bi bi-lightning-charge-fill"></i>
+            FLASH SALE -@Model.DiscountPercentage?.ToString("F0")%
+        </div>
+    }
+    
     <a asp-controller="Products" asp-action="Details" asp-route-id="@product?.ProductId">
         <img src="@imageUrl" class="card-img-top" style="height:220px; object-fit:cover;" alt="@product?.Title" />
     </a>
+    
     <div class="card-body d-flex flex-column">
         <div class="d-flex justify-content-between align-items-start mb-2">
             <h6 class="card-title mb-0">@product?.Title</h6>
@@ -24,11 +36,79 @@
             </button>
         </div>
         <p class="text-muted small mb-1">@product?.Author</p>
+        
         <div class="mt-auto">
-            <div class="d-flex justify-content-between align-items-center">
+            @if (hasFlashSale)
+            {
+                <div class="mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted text-decoration-line-through small">
+                            @product?.Price.ToString("N0")₫
+                        </span>
+                        <span class="badge bg-danger">
+                            Tiết kiệm @Model.Savings?.ToString("N0")₫
+                        </span>
+                    </div>
+                    <strong class="text-danger fs-5">@effectivePrice.ToString("N0")₫</strong>
+                    
+                    @if (Model.FlashSale?.StockLimit.HasValue == true)
+                    {
+                        var remaining = Model.FlashSale.StockLimit.Value - Model.FlashSale.SoldCount;
+                        <div class="mt-1">
+                            <small class="text-warning">
+                                <i class="bi bi-clock-history"></i>
+                                Chỉ còn @remaining sản phẩm
+                            </small>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
                 <strong class="text-primary">@product?.Price.ToString("N0")₫</strong>
-                <a class="btn btn-sm btn-outline-primary" asp-controller="Products" asp-action="Details" asp-route-id="@product?.ProductId">Xem</a>
+            }
+            
+            <div class="d-flex justify-content-between align-items-center mt-2">
+                <a class="btn btn-sm @(hasFlashSale ? "btn-danger" : "btn-outline-primary")" 
+                   asp-controller="Products" 
+                   asp-action="Details" 
+                   asp-route-id="@product?.ProductId">
+                    @(hasFlashSale ? "🔥 Mua ngay" : "Xem chi tiết")
+                </a>
             </div>
         </div>
     </div>
 </div>
+
+@section Styles {
+    <style>
+        .flash-sale-card {
+            position: relative;
+            border: 2px solid #ff4444;
+            box-shadow: 0 0 10px rgba(255, 68, 68, 0.3);
+        }
+        
+        .flash-sale-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(135deg, #ff4444, #ff6b6b);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .flash-sale-badge i {
+            animation: flash 1.5s infinite;
+        }
+        
+        @@keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+}

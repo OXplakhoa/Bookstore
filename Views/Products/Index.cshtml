@@ -46,11 +46,13 @@
                 {
                     @foreach (var product in Model.Products)
                     {
+                        Model.FlashSales.TryGetValue(product.ProductId, out var flashSale);
                         var cardModel = new Bookstore.ViewModels.ProductCardViewModel
                         {
                             Product = product,
                             IsFavorited = Model.FavoriteProductIds.Contains(product.ProductId),
-                            IsRecentlyViewed = Model.RecentlyViewedProductIds.Contains(product.ProductId)
+                            IsRecentlyViewed = Model.RecentlyViewedProductIds.Contains(product.ProductId),
+                            FlashSale = flashSale
                         };
                         <div class="col">
                             @await Html.PartialAsync("_ProductCard", cardModel)
