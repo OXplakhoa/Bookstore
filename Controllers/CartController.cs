@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Bookstore.Services;
+using System.Collections.Frozen;
 
 namespace Bookstore.Controllers
 {
@@ -11,11 +13,13 @@ namespace Bookstore.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IFlashSaleService _flashSaleService;
 
-        public CartController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public CartController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IFlashSaleService flashSaleService)
         {
             _context = context;
             _userManager = userManager;
+            _flashSaleService = flashSaleService;
         }
 
         // GET: /Cart
@@ -29,14 +33,23 @@ namespace Bookstore.Controllers
 
             var cartItems = await _context.CartItems
                 .Include(c => c.Product)
-                .ThenInclude(p => p.ProductImages)
+                    .ThenInclude(p => p!.ProductImages)
+                .Include(c => c.FlashSaleProduct) // Through FlashSaleProductId
+                    .ThenInclude(fsp => fsp!.FlashSale) 
                 .Where(c => c.UserId == userId)
                 .ToListAsync();
 
+            // Calculate total with effective prices (flash sale / regular)
+            decimal totalPrice = 0;
+            foreach (var item in cartItems)
+            {
+                var effectivePrice = item.LockedPrice ?? item.Product!.Price;
+                totalPrice += effectivePrice * item.Quantity;
+            }
             var viewModel = new CartViewModel
             {
                 CartItems = cartItems,
-                TotalPrice = cartItems.Sum(c => c.Quantity * c.Product.Price)
+                TotalPrice = totalPrice
             };
 
             return View(viewModel);
@@ -65,6 +78,35 @@ namespace Bookstore.Controllers
                 return Json(new { success = false, message = "Not enough stock available" });
             }
 
+            // Check if product has active flash sale
+            FlashSaleProduct? flashSale = null;
+            decimal lockedPrice = product.Price;
+
+            if(request.FlashSaleProductId.HasValue)
+            {
+                flashSale = await _context.FlashSaleProducts
+                    .Include(fsp => fsp.FlashSale)
+                    .FirstOrDefaultAsync(fsp => fsp.FlashSaleProductId == request.FlashSaleProductId.Value);
+                
+                if (flashSale != null)
+                {
+                    var now = DateTime.UtcNow;
+                    if (!flashSale.FlashSale!.IsActive ||
+                        flashSale.FlashSale.StartDate > now ||
+                        flashSale.FlashSale.EndDate < now)
+                    {
+                        return Json(new { success = false, message = "Flash sale is no longer active" });
+                    }
+                    // Check flash sale stock limit
+                    if (!await _flashSaleService.CanPurchaseAtFlashPriceAsync(flashSale.FlashSaleProductId, request.Quantity))
+                    {
+                        return Json(new { success = false, message = "Flash Sale stock limit reached" });
+                    }
+                    lockedPrice = flashSale.SalePrice; // Lock flash sale price
+                }
+            }
+
+
             var existingCartItem = await _context.CartItems
                 .FirstOrDefaultAsync(c => c.UserId == userId && c.ProductId == request.ProductId);
 
@@ -75,6 +117,16 @@ namespace Bookstore.Controllers
                 {
                     return Json(new { success = false, message = "Not enough stock available" });
                 }
+
+                // Update flash sale info if adding with flash sale
+                // This handles the scenario where:
+                //  1. User previously added Product X to cart without flash sale (at regular price)
+                //  2. Now user adds the same Product X but with flash sale (at discounted price)
+                if (flashSale != null && existingCartItem.FlashSaleProductId == null)
+                {
+                    existingCartItem.FlashSaleProductId = flashSale.FlashSaleProductId;
+                    existingCartItem.LockedPrice = lockedPrice;
+                }
             }
             else
             {
@@ -83,7 +135,9 @@ namespace Bookstore.Controllers
                     UserId = userId,
                     ProductId = request.ProductId,
                     Quantity = request.Quantity,
-                    DateAdded = DateTime.UtcNow
+                    DateAdded = DateTime.UtcNow,
+                    FlashSaleProductId = flashSale?.FlashSaleProductId,
+                    LockedPrice = flashSale != null ? lockedPrice : null
                 };
                 _context.CartItems.Add(cartItem);
             }
@@ -94,7 +148,10 @@ namespace Bookstore.Controllers
                 .Where(c => c.UserId == userId)
                 .SumAsync(c => c.Quantity);
 
-            return Json(new { success = true, message = "Added to cart", cartCount = cartCount });
+            var message = flashSale != null 
+                ? $"Đã thêm vào giỏ với giá Flash Sale: {lockedPrice:N0}₫"
+                : "Đã thêm vào giỏ hàng";
+            return Json(new { success = true, message, cartCount });
         }
 
         // POST: /Cart/UpdateQuantity
@@ -197,5 +254,6 @@ namespace Bookstore.Controllers
     {
         public int ProductId { get; set; }
         public int Quantity { get; set; }
+        public int? FlashSaleProductId { get; set; }
     }
 }

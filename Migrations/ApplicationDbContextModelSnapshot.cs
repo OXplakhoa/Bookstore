@@ -122,6 +122,12 @@ namespace Bookstore.Migrations
                     b.Property<DateTime>("DateAdded")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("FlashSaleProductId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("LockedPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
@@ -132,6 +138,8 @@ namespace Bookstore.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("CartItemId");
+
+                    b.HasIndex("FlashSaleProductId");
 
                     b.HasIndex("ProductId");
 
@@ -667,6 +675,10 @@ namespace Bookstore.Migrations
 
             modelBuilder.Entity("CartItem", b =>
                 {
+                    b.HasOne("FlashSaleProduct", "FlashSaleProduct")
+                        .WithMany()
+                        .HasForeignKey("FlashSaleProductId");
+
                     b.HasOne("Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
@@ -676,6 +688,8 @@ namespace Bookstore.Migrations
                     b.HasOne("ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
+
+                    b.Navigation("FlashSaleProduct");
 
                     b.Navigation("Product");
 
