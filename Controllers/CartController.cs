@@ -166,6 +166,7 @@ namespace Bookstore.Controllers
 
             var cartItem = await _context.CartItems
                 .Include(c => c.Product)
+                .Include(c => c.FlashSaleProduct)
                 .FirstOrDefaultAsync(c => c.CartItemId == cartItemId && c.UserId == userId);
 
             if (cartItem == null)
@@ -177,27 +178,42 @@ namespace Bookstore.Controllers
             {
                 _context.CartItems.Remove(cartItem);
             }
-            else if (quantity > cartItem.Product.Stock)
-            {
-                return Json(new { success = false, message = "Not enough stock available" });
-            }
             else
             {
+                // Check product stock
+                if (quantity > cartItem.Product!.Stock)
+                {
+                    return Json(new { success = false, message = "Không đủ hàng trong kho" });
+                }
+                // Check flash sale stock limit if applicable
+                if (cartItem.FlashSaleProductId.HasValue)
+                {
+                    if (!await _flashSaleService.CanPurchaseAtFlashPriceAsync(cartItem.FlashSaleProductId.Value, quantity))
+                    {
+                        return Json(new { success = false, message = "Đã vượt quá giới hạn mua hàng của Flash Sale" });
+                    }
+                }
                 cartItem.Quantity = quantity;
             }
-
             await _context.SaveChangesAsync();
 
             var cartCount = await _context.CartItems
                 .Where(c => c.UserId == userId)
                 .SumAsync(c => c.Quantity);
 
-            var totalPrice = await _context.CartItems
+            var cartItems = await _context.CartItems
                 .Include(c => c.Product)
                 .Where(c => c.UserId == userId)
-                .SumAsync(c => c.Quantity * c.Product.Price);
+                .ToListAsync();
 
-            return Json(new { success = true, cartCount = cartCount, totalPrice = totalPrice.ToString("N0") });
+            decimal totalPrice = 0;
+            foreach (var item in cartItems)
+            {
+                var effectivePrice = item.LockedPrice ?? item.Product!.Price;
+                totalPrice += effectivePrice * item.Quantity;
+            }
+
+            return Json(new { success = true, cartCount, totalPrice = totalPrice.ToString("N0") });
         }
 
         // POST: /Cart/RemoveFromCart
@@ -225,12 +241,19 @@ namespace Bookstore.Controllers
                 .Where(c => c.UserId == userId)
                 .SumAsync(c => c.Quantity);
 
-            var totalPrice = await _context.CartItems
+            var cartItems = await _context.CartItems
                 .Include(c => c.Product)
-                .Where(c => c.UserId == userId)
-                .SumAsync(c => c.Quantity * c.Product.Price);
+                .Where (c => c.UserId == userId)
+                .ToListAsync();
+            
+            decimal totalPrice = 0;
+            foreach (var item in cartItems)
+            {
+                var effectivePrice = item.LockedPrice ?? item.Product!.Price;
+                totalPrice += effectivePrice * item.Quantity;
+            }
 
-            return Json(new { success = true, cartCount = cartCount, totalPrice = totalPrice.ToString("N0") });
+            return Json(new { success = true, cartCount, totalPrice = totalPrice.ToString("N0") });
         }
 
         // GET: /Cart/GetCartCount

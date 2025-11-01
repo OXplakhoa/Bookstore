@@ -26,6 +26,11 @@
                         <tbody>
                             @foreach (var item in Model.CartItems)
                             {
+                                var effectivePrice = item.LockedPrice ?? item.Product!.Price;
+                                var lineTotal = effectivePrice * item.Quantity;
+                                var originalLineTotal = item.Product!.Price * item.Quantity;
+                                var hasFlash = item.LockedPrice.HasValue;
+
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center">
@@ -38,10 +43,35 @@
                                             <div>
                                                 <h6 class="mb-1">@item.Product?.Title</h6>
                                                 <small class="text-muted">@item.Product?.Author</small>
+                                                @if (hasFlash)
+                                                {
+                                                    <div>
+                                                        <span class="badge bg-danger ms-0">Flash Sale</span>
+                                                    </div>
+                                                }
                                             </div>
                                         </div>
                                     </td>
-                                    <td>@item.Product?.Price.ToString("N0")₫</td>
+
+                                    <td>
+                                        @if (hasFlash)
+                                        {
+                                            <div class="text-muted text-decoration-line-through small">
+                                                @item.Product!.Price.ToString("N0")₫
+                                            </div>
+                                            <div class="text-danger fw-bold">
+                                                @item.LockedPrice!.Value.ToString("N0")₫
+                                            </div>
+                                            <div class="small text-success">
+                                                Tiết kiệm @((item.Product!.Price - item.LockedPrice!.Value).ToString("N0"))₫
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="fw-semibold">@item.Product!.Price.ToString("N0")₫</span>
+                                        }
+                                    </td>
+
                                     <td>
                                         <div class="input-group" style="width: 120px;">
                                             <button class="btn btn-outline-secondary btn-sm" type="button" 
@@ -53,7 +83,17 @@
                                                     onclick="updateQuantity(@item.CartItemId, @(item.Quantity + 1))">+</button>
                                         </div>
                                     </td>
-                                    <td class="fw-bold">@((item.Quantity * item.Product.Price).ToString("N0"))₫</td>
+
+                                    <td class="fw-bold">
+                                        @if (hasFlash)
+                                        {
+                                            <div class="text-muted text-decoration-line-through small">
+                                                @originalLineTotal.ToString("N0")₫
+                                            </div>
+                                        }
+                                        <div>@lineTotal.ToString("N0")₫</div>
+                                    </td>
+
                                     <td>
                                         <button class="btn btn-outline-danger btn-sm" 
                                                 onclick="removeFromCart(@item.CartItemId)">
@@ -66,6 +106,7 @@
                     </table>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header">
