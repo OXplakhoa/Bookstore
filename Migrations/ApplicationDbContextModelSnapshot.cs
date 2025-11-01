@@ -496,6 +496,12 @@ namespace Bookstore.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderItemId"));
 
+                    b.Property<decimal?>("FlashSaleDiscount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("FlashSaleProductId")
+                        .HasColumnType("int");
+
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
@@ -508,7 +514,12 @@ namespace Bookstore.Migrations
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<bool>("WasOnFlashSale")
+                        .HasColumnType("bit");
+
                     b.HasKey("OrderItemId");
+
+                    b.HasIndex("FlashSaleProductId");
 
                     b.HasIndex("OrderId");
 
@@ -796,6 +807,10 @@ namespace Bookstore.Migrations
 
             modelBuilder.Entity("OrderItem", b =>
                 {
+                    b.HasOne("FlashSaleProduct", "FlashSaleProduct")
+                        .WithMany()
+                        .HasForeignKey("FlashSaleProductId");
+
                     b.HasOne("Order", "Order")
                         .WithMany("OrderItems")
                         .HasForeignKey("OrderId")
@@ -807,6 +822,8 @@ namespace Bookstore.Migrations
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("FlashSaleProduct");
 
                     b.Navigation("Order");
 

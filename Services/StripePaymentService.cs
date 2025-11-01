@@ -39,7 +39,7 @@ public class StripePaymentService : IStripePaymentService
             PriceData = new SessionLineItemPriceDataOptions
             {
                 Currency = "vnd",
-                UnitAmount = (long)(oi.UnitPrice * 100),
+                UnitAmount = (long)oi.UnitPrice,
                 ProductData = new SessionLineItemPriceDataProductDataOptions
                 {
                     Name = oi.Product?.Title ?? $"Product #{oi.ProductId}"
