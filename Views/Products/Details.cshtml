@@ -15,6 +15,17 @@
         var mainImage = Model.Product.ProductImages?.FirstOrDefault(i => i.IsMain) ?? Model.Product.ProductImages?.FirstOrDefault();
         imageUrl = mainImage?.ImageUrl ?? Url.Content("~/images/no-image.svg"); 
     }
+    // Compute available quantity for display and purchase 
+    var totalStock = Model.Product?.Stock ?? 0;
+    int? flashRemaining = null;
+    if (hasFlashSale && Model.FlashSale!.StockLimit.HasValue)
+    {
+        flashRemaining = Math.Max(0, Model.FlashSale.StockLimit.Value - Model.FlashSale.SoldCount);
+    }
+    var availableToSell = (hasFlashSale && flashRemaining.HasValue) 
+        ? Math.Min(totalStock, flashRemaining.Value) 
+        : totalStock;
+    var isInStock = availableToSell > 0;
 }
 
 <div class="container my-4">
@@ -101,8 +112,24 @@
             }
 
             <p><strong>Thể loại:</strong> @(Model.Product?.Category?.Name ?? "N/A")</p>
-            <p><strong>Tình trạng:</strong> @(Model.Product?.Stock > 0 ? $"Còn hàng ({Model.Product.Stock})" : "Hết hàng")</p>
-
+            <p>
+                <strong>Tình trạng:</strong>
+                @if (hasFlashSale && flashRemaining.HasValue)
+                {
+                    if (availableToSell > 0)
+                    {
+                        @:Còn hàng (@availableToSell)
+                    }
+                    else
+                    {
+                        @:<span class="text-danger">Hết hàng (Flash Sale)</span>
+                    }
+                }
+                else
+                {
+                    @:(Model.Product?.Stock > 0 ? $"Còn hàng ({Model.Product.Stock})" : "Hết hàng")
+                }
+            </p>
             @if (Model.Product != null) // Only show quantity and cart if product exists
             {
                 <div class="mb-3">
