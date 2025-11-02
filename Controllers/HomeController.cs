@@ -46,6 +46,12 @@ public class HomeController : Controller
         return View();
     }
 
+    // Flash Sale Testing Page - Remove in production
+    public IActionResult TestFlashSale()
+    {
+        return View();
+    }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

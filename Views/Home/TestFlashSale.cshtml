@@ -1,0 +1,236 @@
+@* Test page for Flash Sale features - For development/testing only *@
+@{
+    ViewData["Title"] = "Flash Sale Testing Tools";
+    Layout = "_Layout";
+}
+
+<div class="container my-4">
+    <div class="alert alert-warning">
+        <strong>⚠️ Development Testing Page</strong> - Remove before production deployment
+    </div>
+
+    <h2>Flash Sale Testing Tools</h2>
+    <p class="text-muted">Quick tests for flash sale functionality</p>
+
+    <div class="row mt-4">
+        <!-- Test 1: Countdown Timer -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Test 1: Countdown Timer</h5>
+                </div>
+                <div class="card-body">
+                    <p>Countdown expiring in 10 seconds:</p>
+                    <div class="alert alert-info">
+                        <strong id="test-countdown-1" data-countdown-end="">Loading...</strong>
+                    </div>
+                    <button class="btn btn-sm btn-primary" onclick="startTest1()">Start Test</button>
+                    <button class="btn btn-sm btn-secondary" onclick="resetTest1()">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 2: Multiple Countdowns -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Test 2: Multiple Countdowns</h5>
+                </div>
+                <div class="card-body">
+                    <p>Timer 1 (5s): <span id="test-countdown-2a" data-countdown-end="">-</span></p>
+                    <p>Timer 2 (10s): <span id="test-countdown-2b" data-countdown-end="">-</span></p>
+                    <p>Timer 3 (15s): <span id="test-countdown-2c" data-countdown-end="">-</span></p>
+                    <button class="btn btn-sm btn-success" onclick="startTest2()">Start All</button>
+                    <button class="btn btn-sm btn-secondary" onclick="resetTest2()">Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 3: Price Display -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Test 3: Price Display Styles</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <span class="flash-sale-badge">🔥 FLASH SALE -40%</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="price-strikethrough me-2">100,000₫</span>
+                        <span class="sale-price">60,000₫</span>
+                    </div>
+                    <div class="countdown countdown-active">
+                        Kết thúc trong 2h 30m 15s
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test 4: Flash Sale Card -->
+        <div class="col-md-6 mb-4">
+            <div class="card flash-sale-card">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">Test 4: Flash Sale Card</h5>
+                </div>
+                <div class="card-body position-relative">
+                    <div class="discount-percentage">-50%</div>
+                    <img src="~/images/no-image.svg" class="img-fluid mb-2" style="height:150px;object-fit:cover;" alt="Test" />
+                    <h6>Test Product Name</h6>
+                    <p class="text-muted small">Test Author</p>
+                    <div>
+                        <span class="price-strikethrough small">200,000₫</span><br/>
+                        <strong class="text-danger">100,000₫</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test 5: Console Tests -->
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Test 5: JavaScript Console Tests</h5>
+        </div>
+        <div class="card-body">
+            <p>Open browser DevTools (F12) and run these commands:</p>
+            <div class="bg-dark text-white p-3 mb-2" style="font-family: monospace; font-size: 0.9em;">
+                <div>// Check all countdowns on page</div>
+                <div>document.querySelectorAll('[data-countdown-end]').forEach((el, i) => {</div>
+                <div>&nbsp;&nbsp;console.log(`Timer ${i+1}:`, el.textContent);</div>
+                <div>});</div>
+            </div>
+            <div class="bg-dark text-white p-3 mb-2" style="font-family: monospace; font-size: 0.9em;">
+                <div>// Force all countdowns to expire in 5 seconds</div>
+                <div>document.querySelectorAll('[data-countdown-end]').forEach(el => {</div>
+                <div>&nbsp;&nbsp;el.setAttribute('data-countdown-end', new Date(Date.now() + 5000).toISOString());</div>
+                <div>});</div>
+                <div>window.initFlashSaleCountdowns();</div>
+            </div>
+            <button class="btn btn-info btn-sm" onclick="runConsoleTest1()">Run Test: List All Countdowns</button>
+            <button class="btn btn-info btn-sm" onclick="runConsoleTest2()">Run Test: Expire in 5s</button>
+        </div>
+    </div>
+
+    <!-- Test Results Log -->
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">Test Results Log</h5>
+        </div>
+        <div class="card-body">
+            <div id="test-log" class="bg-light p-3" style="max-height: 300px; overflow-y: auto; font-family: monospace; font-size: 0.85em;">
+                <div class="text-muted">Test log will appear here...</div>
+            </div>
+            <button class="btn btn-sm btn-secondary mt-2" onclick="clearLog()">Clear Log</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Logging function
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('test-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#0066cc',
+                success: '#28a745',
+                error: '#dc3545',
+                warning: '#ffc107'
+            };
+            const entry = document.createElement('div');
+            entry.style.color = colors[type];
+            entry.textContent = `[${timestamp}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('test-log').innerHTML = '<div class="text-muted">Test log cleared...</div>';
+        }
+
+        // Test 1: Single countdown
+        function startTest1() {
+            const el = document.getElementById('test-countdown-1');
+            const endTime = new Date(Date.now() + 10000).toISOString();
+            el.setAttribute('data-countdown-end', endTime);
+            window.initFlashSaleCountdowns();
+            log('Test 1 started: Countdown for 10 seconds', 'info');
+        }
+
+        function resetTest1() {
+            const el = document.getElementById('test-countdown-1');
+            el.removeAttribute('data-countdown-end');
+            el.textContent = 'Loading...';
+            log('Test 1 reset', 'warning');
+        }
+
+        // Test 2: Multiple countdowns
+        function startTest2() {
+            const el1 = document.getElementById('test-countdown-2a');
+            const el2 = document.getElementById('test-countdown-2b');
+            const el3 = document.getElementById('test-countdown-2c');
+            
+            el1.setAttribute('data-countdown-end', new Date(Date.now() + 5000).toISOString());
+            el2.setAttribute('data-countdown-end', new Date(Date.now() + 10000).toISOString());
+            el3.setAttribute('data-countdown-end', new Date(Date.now() + 15000).toISOString());
+            
+            window.initFlashSaleCountdowns();
+            log('Test 2 started: Three countdowns (5s, 10s, 15s)', 'info');
+        }
+
+        function resetTest2() {
+            ['test-countdown-2a', 'test-countdown-2b', 'test-countdown-2c'].forEach(id => {
+                const el = document.getElementById(id);
+                el.removeAttribute('data-countdown-end');
+                el.textContent = '-';
+            });
+            log('Test 2 reset', 'warning');
+        }
+
+        // Console tests
+        function runConsoleTest1() {
+            const countdowns = document.querySelectorAll('[data-countdown-end]');
+            log(`Found ${countdowns.length} countdown timer(s) on page`, 'success');
+            countdowns.forEach((el, i) => {
+                log(`  Timer ${i+1}: ${el.textContent}`, 'info');
+            });
+        }
+
+        function runConsoleTest2() {
+            const countdowns = document.querySelectorAll('[data-countdown-end]');
+            if (countdowns.length === 0) {
+                log('No countdowns found. Start a test first.', 'error');
+                return;
+            }
+            countdowns.forEach(el => {
+                el.setAttribute('data-countdown-end', new Date(Date.now() + 5000).toISOString());
+            });
+            window.initFlashSaleCountdowns();
+            log(`Set ${countdowns.length} countdown(s) to expire in 5 seconds`, 'warning');
+        }
+
+        // Listen for expired events
+        document.addEventListener('flashsale:expired', function(e) {
+            log('⚠️ Flash sale expired event fired!', 'error');
+            console.log('Expired element:', e.target);
+        });
+
+        // Log page load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('✓ Page loaded, flash sale countdown script initialized', 'success');
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .flash-sale-card {
+            transition: transform 0.2s;
+        }
+        .flash-sale-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+    </style>
+}

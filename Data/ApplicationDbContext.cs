@@ -40,6 +40,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<OrderItem>()
             .Property(o => o.UnitPrice)
             .HasColumnType("decimal(18,2)");
+        builder.Entity<OrderItem>()
+            .Property(o => o.FlashSaleDiscount)
+            .HasColumnType("decimal(18,2)");
+        builder.Entity<CartItem>()
+            .Property(c => c.LockedPrice)
+            .HasColumnType("decimal(18,2)");
         builder.Entity<FavoriteProduct>()
             .HasKey(fp => new { fp.ApplicationUserId, fp.ProductId });
         // Configure the many-to-many relationship through FavoriteProduct
