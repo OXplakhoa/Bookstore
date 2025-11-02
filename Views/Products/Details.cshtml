@@ -41,12 +41,9 @@
                     <p class="mb-0">Tiết kiệm @((Model.Product!.Price - Model.FlashSale.SalePrice).ToString("N0"))₫</p>
                 </div>
                 <div class="text-end">
-                    <div class="countdown" 
-                         data-end-date="@Model.FlashSale.FlashSale!.EndDate.ToString("yyyy-MM-ddTHH:mm:ss")">
-                        <div class="countdown-timer" id="countdown">
-                            <i class="bi bi-clock"></i>
-                            <span>Đang tải...</span>
-                        </div>
+                    <div class="countdown-timer">
+                        <i class="bi bi-clock"></i>
+                        <span data-countdown-end="@Model.FlashSale.FlashSale!.EndDate.ToString("o")">Đang tải...</span>
                     </div>
                     @if (Model.FlashSale.StockLimit.HasValue)
                     {
@@ -215,37 +212,19 @@
 
 @section Scripts {
     <script>
-        // Countdown timer
-        function updateCountdown() {
-            const countdownEl = document.querySelector('.countdown');
-            if (!countdownEl) return;
-            
-            const endDate = new Date(countdownEl.dataset.endDate);
-            const now = new Date();
-            const diff = endDate - now;
-            
-            if (diff <= 0) {
-                document.getElementById('countdown').innerHTML = '<i class="bi bi-x-circle"></i> <span>Flash Sale đã kết thúc</span>';
-                location.reload(); // Reload page khi sale kết thúc
-                return;
+        // Initialize countdown on page load (using global countdown script)
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof window.initFlashSaleCountdowns === 'function') {
+                window.initFlashSaleCountdowns();
             }
-            
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-            
-            let timeString = '';
-            if (days > 0) timeString += `${days} ngày `;
-            timeString += `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
-            document.getElementById('countdown').innerHTML = `<i class="bi bi-clock"></i> <span>Kết thúc sau: ${timeString}</span>`;
-        }
+        });
         
-        if (document.querySelector('.countdown')) {
-            updateCountdown();
-            setInterval(updateCountdown, 1000);
-        }
+        // Listen for flash sale expiration
+        document.addEventListener('flashsale:expired', function() {
+            setTimeout(function() {
+                location.reload(); // Reload page when sale ends
+            }, 2000);
+        });
         
         // Add to cart with flash sale support
         document.getElementById('btnAddCart')?.addEventListener('click', async function () {
