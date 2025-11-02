@@ -29,3 +29,100 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/* Flash Sale Styles */
+.flash-sale-badge {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  display: inline-block;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.price-strikethrough {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 0.9em;
+}
+
+.sale-price {
+  color: #e53935;
+  font-size: 1.5em;
+  font-weight: 700;
+}
+
+.countdown {
+  font-weight: 600;
+  color: #e76f51;
+  font-size: 0.95rem;
+}
+
+.countdown-active {
+  animation: pulse-color 2s ease-in-out infinite;
+}
+
+@keyframes pulse-color {
+  0%, 100% {
+    color: #e76f51;
+  }
+  50% {
+    color: #f4a261;
+  }
+}
+
+.flash-sale-banner {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.flash-sale-banner .sale-price {
+  color: #fff;
+  font-size: 2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.flash-sale-banner .price-strikethrough {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.2rem;
+}
+
+.flash-sale-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.flash-sale-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.discount-percentage {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #e53935;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  z-index: 10;
+}

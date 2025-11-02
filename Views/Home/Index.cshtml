@@ -1,8 +1,102 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
+    var flashSaleProducts = ViewBag.FlashSaleProducts as IEnumerable<FlashSaleProduct>;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center mb-5">
+    <h1 class="display-4">Chào mừng đến Bookstore</h1>
+    <p class="lead">Khám phá thế giới sách cùng chúng tôi</p>
+    <a asp-controller="Products" asp-action="Index" class="btn btn-primary btn-lg">Xem tất cả sách</a>
 </div>
+
+@if (flashSaleProducts != null && flashSaleProducts.Any())
+{
+    <section class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="bi bi-lightning-charge-fill text-danger"></i>
+                Flash Sale - Đang diễn ra
+            </h2>
+            <a asp-controller="Products" asp-action="Index" class="btn btn-outline-danger">
+                Xem tất cả <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        
+        <div class="row g-4">
+            @foreach (var item in flashSaleProducts)
+            {
+                var product = item.Product;
+                var imageUrl = product?.ProductImages?.FirstOrDefault()?.ImageUrl ?? Url.Content("~/images/no-image.svg");
+                var remaining = item.StockLimit.HasValue ? Math.Max(0, item.StockLimit.Value - item.SoldCount) : (int?)null;
+                
+                <div class="col-6 col-md-3">
+                    <div class="card h-100 flash-sale-card position-relative">
+                        <div class="discount-percentage">
+                            -@item.DiscountPercentage.ToString("F0")%
+                        </div>
+                        
+                        <a asp-controller="Products" asp-action="Details" asp-route-id="@product?.ProductId">
+                            <img src="@imageUrl" class="card-img-top" style="height:200px; object-fit:cover;" alt="@product?.Title" />
+                        </a>
+                        
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title text-truncate" title="@product?.Title">
+                                @product?.Title
+                            </h6>
+                            <p class="text-muted small mb-2">@product?.Author</p>
+                            
+                            <div class="mt-auto">
+                                <div class="mb-2">
+                                    <span class="text-muted text-decoration-line-through small d-block">
+                                        @item.OriginalPrice.ToString("N0")₫
+                                    </span>
+                                    <strong class="text-danger fs-5">
+                                        @item.SalePrice.ToString("N0")₫
+                                    </strong>
+                                </div>
+                                
+                                <div class="small countdown mb-2" data-countdown-end="@item.FlashSale!.EndDate.ToString("o")">
+                                    Đang tải...
+                                </div>
+                                
+                                @if (remaining.HasValue)
+                                {
+                                    <div class="mb-2">
+                                        <small class="text-warning">
+                                            <i class="bi bi-fire"></i> Chỉ còn @remaining
+                                        </small>
+                                    </div>
+                                }
+                                
+                                <a asp-controller="Products" asp-action="Details" asp-route-id="@product?.ProductId" 
+                                   class="btn btn-danger btn-sm w-100">
+                                    🔥 Mua ngay
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+}
+
+<section class="container my-5">
+    <div class="row">
+        <div class="col-md-4 text-center mb-4">
+            <i class="bi bi-truck fs-1 text-primary"></i>
+            <h4 class="mt-3">Giao hàng nhanh</h4>
+            <p class="text-muted">Giao hàng toàn quốc trong 2-3 ngày</p>
+        </div>
+        <div class="col-md-4 text-center mb-4">
+            <i class="bi bi-shield-check fs-1 text-success"></i>
+            <h4 class="mt-3">Thanh toán an toàn</h4>
+            <p class="text-muted">Hỗ trợ nhiều hình thức thanh toán</p>
+        </div>
+        <div class="col-md-4 text-center mb-4">
+            <i class="bi bi-headset fs-1 text-info"></i>
+            <h4 class="mt-3">Hỗ trợ 24/7</h4>
+            <p class="text-muted">Đội ngũ hỗ trợ luôn sẵn sàng</p>
+        </div>
+    </div>
+</section>
