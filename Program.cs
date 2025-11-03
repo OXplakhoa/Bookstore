@@ -43,6 +43,7 @@ builder.Services.AddScoped<IStripePaymentService, StripePaymentService>();
 
 // Register Flash Sale services
 builder.Services.AddScoped<IFlashSaleService, FlashSaleService>();
+builder.Services.AddScoped<IFlashSaleNotificationService, FlashSaleNotificationService>();
 
 var app = builder.Build();
 
