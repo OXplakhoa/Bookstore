@@ -112,9 +112,22 @@
                     <i class="bi bi-arrow-left"></i> Quay lại
                 </a>
                 <div>
+                    <a asp-action="Analytics" asp-route-id="@Model.FlashSaleId" class="btn btn-info">
+                        <i class="bi bi-graph-up"></i> Phân tích
+                    </a>
                     <a asp-action="ManageProducts" asp-route-id="@Model.FlashSaleId" class="btn btn-success">
                         <i class="bi bi-box-seam"></i> Quản lý sản phẩm
                     </a>
+                    @if (Model.IsActive && Model.FlashSaleProducts != null && Model.FlashSaleProducts.Any())
+                    {
+                        <form asp-action="SendNotifications" asp-route-id="@Model.FlashSaleId" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-primary" 
+                                    onclick="return confirm('Gửi email thông báo Flash Sale cho users có favorite products?\n\nEmail sẽ được gửi cho tất cả users đã favorite các sản phẩm trong Flash Sale này.');">
+                                <i class="bi bi-envelope"></i> Gửi thông báo Email
+                            </button>
+                        </form>
+                    }
                     <a asp-action="Edit" asp-route-id="@Model.FlashSaleId" class="btn btn-warning">
                         <i class="bi bi-pencil"></i> Chỉnh sửa
                     </a>
