@@ -14,11 +14,16 @@ public class FlashSalesController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IFlashSaleService _flashSaleService;
+    private readonly IFlashSaleNotificationService _notificationService;
 
-    public FlashSalesController(ApplicationDbContext context, IFlashSaleService flashSaleService)
+    public FlashSalesController(
+        ApplicationDbContext context, 
+        IFlashSaleService flashSaleService,
+        IFlashSaleNotificationService notificationService)
     {
         _context = context;
         _flashSaleService = flashSaleService;
+        _notificationService = notificationService;
     }
 
     // GET: Admin/FlashSales
@@ -343,6 +348,189 @@ public class FlashSalesController : Controller
         _flashSaleService.InvalidateProductFlashSaleCache(productId);
         TempData["SuccessMessage"] = "Sản phẩm đã được gỡ khỏi Flash Sale thành công.";
         return RedirectToAction(nameof(ManageProducts), new { id = flashSaleId });
+    }
+
+    // GET: Admin/FlashSales/Analytics/:id
+    public async Task<IActionResult> Analytics(int id)
+    {
+        var flashSale = await _context.FlashSales
+            .Include(fs => fs.FlashSaleProducts!)
+                .ThenInclude(fsp => fsp.Product)
+                    .ThenInclude(p => p!.ProductImages)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(fs => fs.FlashSaleId == id);
+
+        if (flashSale == null)
+        {
+            TempData["ErrorMessage"] = "Flash Sale không tồn tại.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var now = DateTime.UtcNow;
+        var status = flashSale.EndDate < now ? "Expired" :
+                     flashSale.StartDate > now ? "Upcoming" :
+                     flashSale.IsActive ? "Active" : "Inactive";
+
+        // Get all flash sale product IDs
+        var flashSaleProductIds = flashSale.FlashSaleProducts!
+            .Select(fsp => fsp.FlashSaleProductId)
+            .ToList();
+
+        // Get all order items related to this flash sale
+        var orderItems = await _context.OrderItems
+            .Include(oi => oi.Order)
+            .Include(oi => oi.Product)
+                .ThenInclude(p => p!.ProductImages)
+            .Where(oi => oi.FlashSaleProductId != null && 
+                         flashSaleProductIds.Contains(oi.FlashSaleProductId.Value))
+            .AsNoTracking()
+            .ToListAsync();
+
+        // Calculate summary statistics
+        var totalUnitsSold = orderItems.Sum(oi => oi.Quantity);
+        var totalRevenue = orderItems.Sum(oi => oi.UnitPrice * oi.Quantity);
+        var totalOrders = orderItems.Select(oi => oi.OrderId).Distinct().Count();
+        var totalProducts = flashSale.FlashSaleProducts?.Count ?? 0;
+
+        // Calculate total discount given
+        var totalDiscount = flashSale.FlashSaleProducts?
+            .Sum(fsp => (fsp.OriginalPrice - fsp.SalePrice) * fsp.SoldCount) ?? 0;
+
+        // Calculate average order value
+        var averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+        // Get product breakdown with performance metrics
+        var productBreakdown = flashSale.FlashSaleProducts?
+            .Select(fsp =>
+            {
+                var soldCount = fsp.SoldCount;
+                var revenue = orderItems
+                    .Where(oi => oi.FlashSaleProductId == fsp.FlashSaleProductId)
+                    .Sum(oi => oi.UnitPrice * oi.Quantity);
+                
+                var discountGiven = (fsp.OriginalPrice - fsp.SalePrice) * soldCount;
+                var stockRemaining = fsp.StockLimit.HasValue 
+                    ? Math.Max(0, fsp.StockLimit.Value - soldCount) 
+                    : int.MaxValue;
+                var sellThroughRate = fsp.StockLimit.HasValue && fsp.StockLimit.Value > 0
+                    ? (double)soldCount / fsp.StockLimit.Value * 100
+                    : 0;
+
+                return new FlashSaleAnalyticsViewModel.ProductBreakdown
+                {
+                    ProductId = fsp.ProductId,
+                    Title = fsp.Product?.Title ?? "Unknown",
+                    Author = fsp.Product?.Author,
+                    ImageUrl = fsp.Product?.ProductImages?.FirstOrDefault()?.ImageUrl,
+                    OriginalPrice = fsp.OriginalPrice,
+                    SalePrice = fsp.SalePrice,
+                    DiscountPercentage = fsp.DiscountPercentage,
+                    QuantitySold = soldCount,
+                    Revenue = revenue,
+                    TotalDiscount = discountGiven,
+                    StockLimit = fsp.StockLimit,
+                    StockRemaining = stockRemaining == int.MaxValue ? 0 : stockRemaining,
+                    SellThroughRate = sellThroughRate
+                };
+            })
+            .OrderByDescending(pb => pb.QuantitySold)
+            .ToList();
+
+        // Get daily sales data for chart
+        var salesByDay = orderItems
+            .GroupBy(oi => oi.Order!.OrderDate.Date)
+            .Select(g => new FlashSaleAnalyticsViewModel.DailySales
+            {
+                Date = g.Key,
+                Orders = g.Select(oi => oi.OrderId).Distinct().Count(),
+                UnitsSold = g.Sum(oi => oi.Quantity),
+                Revenue = g.Sum(oi => oi.UnitPrice * oi.Quantity)
+            })
+            .OrderBy(d => d.Date)
+            .ToList();
+
+        // For conversion rate, we would need view tracking
+        // For now, we'll use a simplified metric based on sold vs stock limit
+        var totalStockLimit = flashSale.FlashSaleProducts?
+            .Where(fsp => fsp.StockLimit.HasValue)
+            .Sum(fsp => fsp.StockLimit!.Value) ?? 0;
+        
+        var conversionRate = totalStockLimit > 0 
+            ? (double)totalUnitsSold / totalStockLimit * 100 
+            : 0;
+
+        var viewModel = new FlashSaleAnalyticsViewModel
+        {
+            FlashSaleId = flashSale.FlashSaleId,
+            Name = flashSale.Name ?? "Unnamed Flash Sale",
+            Description = flashSale.Description,
+            StartDate = flashSale.StartDate,
+            EndDate = flashSale.EndDate,
+            IsActive = flashSale.IsActive,
+            Status = status,
+            TotalUnitsSold = totalUnitsSold,
+            TotalRevenue = totalRevenue,
+            TotalDiscount = totalDiscount,
+            TotalOrders = totalOrders,
+            TotalProducts = totalProducts,
+            ConversionRate = conversionRate,
+            AverageOrderValue = averageOrderValue,
+            TopProducts = productBreakdown ?? new List<FlashSaleAnalyticsViewModel.ProductBreakdown>(),
+            SalesByDay = salesByDay
+        };
+
+        return View(viewModel);
+    }
+
+    // POST: Admin/FlashSales/SendNotifications/:id
+    /// <summary>
+    /// Gửi email thông báo Flash Sale cho users có favorite products
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SendNotifications(int id)
+    {
+        var flashSale = await _context.FlashSales
+            .Include(fs => fs.FlashSaleProducts)
+            .FirstOrDefaultAsync(fs => fs.FlashSaleId == id);
+
+        if (flashSale == null)
+        {
+            TempData["ErrorMessage"] = "Không tìm thấy Flash Sale.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (!flashSale.IsActive)
+        {
+            TempData["ErrorMessage"] = "Flash Sale không hoạt động. Không thể gửi thông báo.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        if (flashSale.FlashSaleProducts == null || !flashSale.FlashSaleProducts.Any())
+        {
+            TempData["ErrorMessage"] = "Flash Sale chưa có sản phẩm nào. Vui lòng thêm sản phẩm trước khi gửi thông báo.";
+            return RedirectToAction(nameof(ManageProducts), new { id });
+        }
+
+        try
+        {
+            var emailsSent = await _notificationService.SendFlashSaleNotificationsAsync(id);
+
+            if (emailsSent > 0)
+            {
+                TempData["SuccessMessage"] = $"✅ Đã gửi {emailsSent} email thông báo Flash Sale thành công!";
+            }
+            else
+            {
+                TempData["WarningMessage"] = "⚠️ Không có user nào đã favorite các sản phẩm trong Flash Sale này.";
+            }
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = $"❌ Lỗi khi gửi thông báo: {ex.Message}";
+        }
+
+        return RedirectToAction(nameof(Details), new { id });
     }
 
     // Private helper to check if FlashSale exists
