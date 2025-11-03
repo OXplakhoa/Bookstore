@@ -418,7 +418,7 @@
             const lines = [headers.map(csvEscape).join(',')];
             for (const p of productsData) {
                 const row = [
-                    p.Title.replace(/'/g, ''),
+                    p.Title, // Loại bỏ .replace(/'/g, '') vì đã escape trong csvEscape
                     p.OriginalPrice,
                     p.SalePrice,
                     p.DiscountPercentage,
@@ -429,7 +429,8 @@
                 lines.push(row);
             }
             const csv = lines.join('\n');
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            // Thêm BOM để hỗ trợ Excel hiển thị đúng UTF-8 để hiển thị tiếng Việt 
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.setAttribute('hidden', '');
