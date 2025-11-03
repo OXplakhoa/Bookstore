@@ -20,10 +20,10 @@
         </div>
         <div>
             <a asp-action="Index" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Back to List
+                <i class="bi bi-arrow-left"></i> Quay lại danh sách
             </a>
             <a asp-action="Details" asp-route-id="@Model.FlashSaleId" class="btn btn-outline-primary">
-                <i class="bi bi-eye"></i> View Details
+                <i class="bi bi-eye"></i> Xem chi tiết
             </a>
         </div>
     </div>
@@ -33,26 +33,26 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-3">
-                    <small class="text-muted">Status</small>
+                    <small class="text-muted">Trạng thái</small>
                     <div><span class="badge bg-@statusColor">@Model.Status</span></div>
                 </div>
                 <div class="col-md-3">
-                    <small class="text-muted">Start Date</small>
+                    <small class="text-muted">Ngày bắt đầu</small>
                     <div>@Model.StartDate.ToLocalTime().ToString("g")</div>
                 </div>
                 <div class="col-md-3">
-                    <small class="text-muted">End Date</small>
+                    <small class="text-muted">Ngày kết thúc</small>
                     <div>@Model.EndDate.ToLocalTime().ToString("g")</div>
                 </div>
                 <div class="col-md-3">
-                    <small class="text-muted">Duration</small>
-                    <div>@((Model.EndDate - Model.StartDate).Days) days</div>
+                    <small class="text-muted">Thời lượng</small>
+                    <div>@((Model.EndDate - Model.StartDate).Days) ngày</div>
                 </div>
             </div>
             @if (!string.IsNullOrWhiteSpace(Model.Description))
             {
                 <div class="mt-3">
-                    <small class="text-muted">Description</small>
+                    <small class="text-muted">Mô tả</small>
                     <p class="mb-0">@Model.Description</p>
                 </div>
             }
@@ -68,7 +68,7 @@
                         <i class="bi bi-currency-dollar fs-1"></i>
                     </div>
                     <h3 class="mb-0">@Model.TotalRevenue.ToString("N0")₫</h3>
-                    <small class="text-muted">Total Revenue</small>
+                    <small class="text-muted">Doanh thu</small>
                 </div>
             </div>
         </div>
@@ -79,7 +79,7 @@
                         <i class="bi bi-box-seam fs-1"></i>
                     </div>
                     <h3 class="mb-0">@Model.TotalUnitsSold</h3>
-                    <small class="text-muted">Units Sold</small>
+                    <small class="text-muted">Số lượng bán</small>
                 </div>
             </div>
         </div>
@@ -90,7 +90,7 @@
                         <i class="bi bi-receipt fs-1"></i>
                     </div>
                     <h3 class="mb-0">@Model.TotalOrders</h3>
-                    <small class="text-muted">Orders</small>
+                    <small class="text-muted">Đơn hàng</small>
                 </div>
             </div>
         </div>
@@ -101,7 +101,7 @@
                         <i class="bi bi-percent fs-1"></i>
                     </div>
                     <h3 class="mb-0">@Model.ConversionRate.ToString("F1")%</h3>
-                    <small class="text-muted">Conversion Rate</small>
+                    <small class="text-muted">Tỷ lệ chuyển đổi</small>
                 </div>
             </div>
         </div>
@@ -112,7 +112,7 @@
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
-                    <small class="text-muted">Average Order Value</small>
+                    <small class="text-muted">Giá trị đơn trung bình</small>
                     <h5 class="mb-0">@Model.AverageOrderValue.ToString("N0")₫</h5>
                 </div>
             </div>
@@ -120,7 +120,7 @@
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
-                    <small class="text-muted">Total Discount Given</small>
+                    <small class="text-muted">Tổng giảm giá</small>
                     <h5 class="mb-0 text-danger">-@Model.TotalDiscount.ToString("N0")₫</h5>
                 </div>
             </div>
@@ -128,7 +128,7 @@
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
-                    <small class="text-muted">Products in Sale</small>
+                    <small class="text-muted">Sản phẩm trong Flash Sale</small>
                     <h5 class="mb-0">@Model.TotalProducts</h5>
                 </div>
             </div>
@@ -136,7 +136,7 @@
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body">
-                    <small class="text-muted">Revenue vs Discount</small>
+                    <small class="text-muted">Doanh thu / Giảm giá</small>
                     <h5 class="mb-0">
                         @if (Model.TotalDiscount > 0)
                         {
@@ -145,7 +145,7 @@
                         }
                         else
                         {
-                            @:N/A
+                            @:Không có dữ liệu
                         }
                     </h5>
                 </div>
@@ -158,7 +158,7 @@
     {
         <div class="card mb-4">
             <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-bar-chart-line"></i> Sales Over Time</h5>
+                <h5 class="mb-0"><i class="bi bi-bar-chart-line"></i> Doanh số theo thời gian</h5>
             </div>
             <div class="card-body">
                 <canvas id="salesChart" height="80"></canvas>
@@ -169,8 +169,8 @@
     <!-- Top Selling Products -->
     <div class="card mb-4">
         <div class="card-header bg-white d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="bi bi-trophy"></i> Product Performance</h5>
-            <small class="text-muted">Sorted by units sold</small>
+            <h5 class="mb-0"><i class="bi bi-trophy"></i> Hiệu suất sản phẩm</h5>
+            <small class="text-muted">Sắp xếp theo số lượng bán</small>
         </div>
         <div class="card-body p-0">
             @if (Model.TopProducts.Any())
@@ -179,14 +179,14 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th>Product</th>
-                                <th class="text-end">Original Price</th>
-                                <th class="text-end">Sale Price</th>
-                                <th class="text-center">Discount</th>
-                                <th class="text-center">Sold</th>
-                                <th class="text-end">Revenue</th>
-                                <th class="text-center">Sell-Through</th>
-                                <th class="text-center">Stock</th>
+                                <th>Sản phẩm</th>
+                                <th class="text-end">Giá gốc</th>
+                                <th class="text-end">Giá sale</th>
+                                <th class="text-center">Giảm giá</th>
+                                <th class="text-center">Đã bán</th>
+                                <th class="text-end">Doanh thu</th>
+                                <th class="text-center">Tỉ lệ bán/giới hạn</th>
+                                <th class="text-center">Tồn kho</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -238,7 +238,7 @@
                                     </td>
                                     <td class="text-end">
                                         <strong>@product.Revenue.ToString("N0")₫</strong>
-                                        <br><small class="text-success">-@product.TotalDiscount.ToString("N0")₫ saved</small>
+                                        <br><small class="text-success">-@product.TotalDiscount.ToString("N0")₫ tiết kiệm</small>
                                     </td>
                                     <td class="text-center">
                                         @if (product.StockLimit.HasValue)
@@ -267,16 +267,16 @@
                                         {
                                             if (product.StockRemaining > 0)
                                             {
-                                                <span class="text-success">@product.StockRemaining left</span>
+                                                <span class="text-success">Còn @product.StockRemaining</span>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-secondary">Sold Out</span>
+                                                <span class="badge bg-secondary">Hết hàng</span>
                                             }
                                         }
                                         else
                                         {
-                                            <span class="text-muted">Unlimited</span>
+                                            <span class="text-muted">Không giới hạn</span>
                                         }
                                     </td>
                                 </tr>
@@ -289,7 +289,7 @@
             {
                 <div class="text-center py-5">
                     <i class="bi bi-inbox fs-1 text-muted"></i>
-                    <p class="text-muted mt-2">No sales data available yet</p>
+                    <p class="text-muted mt-2">Chưa có dữ liệu bán hàng</p>
                 </div>
             }
         </div>
@@ -298,13 +298,13 @@
     <!-- Export Options -->
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title"><i class="bi bi-download"></i> Export Data</h5>
-            <p class="text-muted">Download analytics data for further analysis</p>
-            <button class="btn btn-outline-primary" onclick="exportToCSV()">
-                <i class="bi bi-file-earmark-spreadsheet"></i> Export to CSV
+            <h5 class="card-title"><i class="bi bi-download"></i> Xuất dữ liệu</h5>
+            <p class="text-muted">Tải dữ liệu phân tích để xử lý thêm</p>
+            <button id="exportCSVBtn" class="btn btn-outline-primary">
+                <i class="bi bi-file-earmark-spreadsheet"></i> Xuất CSV
             </button>
-            <button class="btn btn-outline-success" onclick="printReport()">
-                <i class="bi bi-printer"></i> Print Report
+            <button id="printReportBtn" class="btn btn-outline-success">
+                <i class="bi bi-printer"></i> In báo cáo
             </button>
         </div>
     </div>
@@ -315,20 +315,20 @@
     {
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
         <script>
-            // Sales Chart
+            // Biểu đồ doanh số
             const ctx = document.getElementById('salesChart').getContext('2d');
             const salesData = {
                 labels: [@Html.Raw(string.Join(",", Model.SalesByDay.Select(d => $"'{d.Date:MMM dd}'")))],
                 datasets: [
                     {
-                        label: 'Revenue (₫)',
+                        label: 'Doanh thu (₫)',
                         data: [@string.Join(",", Model.SalesByDay.Select(d => d.Revenue))],
                         borderColor: 'rgb(75, 192, 192)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
                         yAxisID: 'y',
                     },
                     {
-                        label: 'Units Sold',
+                        label: 'Số lượng bán',
                         data: [@string.Join(",", Model.SalesByDay.Select(d => d.UnitsSold))],
                         borderColor: 'rgb(255, 99, 132)',
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
@@ -361,7 +361,7 @@
                             position: 'left',
                             title: {
                                 display: true,
-                                text: 'Revenue (₫)'
+                                text: 'Doanh thu (₫)'
                             }
                         },
                         y1: {
@@ -370,7 +370,7 @@
                             position: 'right',
                             title: {
                                 display: true,
-                                text: 'Units'
+                                text: 'Số lượng'
                             },
                             grid: {
                                 drawOnChartArea: false,
@@ -383,19 +383,54 @@
     }
     
     <script>
-        function exportToCSV() {
-            // Simple CSV export
-            let csv = 'Product,Original Price,Sale Price,Discount %,Units Sold,Revenue,Discount Given\n';
-            // Razor code block to loop through products
-            // Example: csv += 'The Great Gatsby','150000','99000','34.00','50','4950000','2550000\n';
-            @foreach (var product in Model.TopProducts)
-            {
-                @:csv += '@product.Title.Replace("'", "")','+ '@product.OriginalPrice' + ',' + '@product.SalePrice' + ',' + '@product.DiscountPercentage.ToString("F2")' + ',' + '@product.QuantitySold' + ',' + '@product.Revenue' + ',' + '@product.TotalDiscount' + '\n';
+        document.addEventListener('DOMContentLoaded', function(){
+            const exportBtn = document.getElementById('exportCSVBtn');
+            if (exportBtn){
+                exportBtn.addEventListener('click', exportToCSV);
             }
-            // Creating a File in the Browser with Blob object. type tells the browser this is a CSV file
-            const blob = new Blob([csv], { type: 'text/csv' });
+            const printBtn = document.getElementById('printReportBtn');
+            if (printBtn){
+                printBtn.addEventListener('click', printReport);
+            }
+        })
+        // Dữ liệu sản phẩm để xuất CSV, được serialize và convert sang JS array
+        const productsData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+            Model.TopProducts.Select(p => new {
+                Title = p.Title ?? string.Empty,
+                OriginalPrice = p.OriginalPrice,
+                SalePrice = p.SalePrice,
+                DiscountPercentage = Math.Round(p.DiscountPercentage, 2),
+                QuantitySold = p.QuantitySold,
+                Revenue = p.Revenue,
+                TotalDiscount = p.TotalDiscount
+            })
+        ));
+
+        function csvEscape(value) {
+            // Escape dấu ngoặc kép và bao quanh bằng dấu ngoặc kép
+            if (value === null || value === undefined) return '';
+            const str = String(value).replace(/"/g, '""');
+            return '"' + str + '"';
+        }
+
+        function exportToCSV() {
+            const headers = ['Sản phẩm','Giá gốc','Giá sale','% Giảm','Đã bán','Doanh thu','Giảm giá'];
+            const lines = [headers.map(csvEscape).join(',')];
+            for (const p of productsData) {
+                const row = [
+                    p.Title.replace(/'/g, ''),
+                    p.OriginalPrice,
+                    p.SalePrice,
+                    p.DiscountPercentage,
+                    p.QuantitySold,
+                    p.Revenue,
+                    p.TotalDiscount
+                ].map(csvEscape).join(',');
+                lines.push(row);
+            }
+            const csv = lines.join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
-            // Triggering the Download itself
             const a = document.createElement('a');
             a.setAttribute('hidden', '');
             a.setAttribute('href', url);
@@ -403,6 +438,8 @@
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
+            // Giải phóng URL đối tượng sau khi tải xuống 
+            window.URL.revokeObjectURL(url);
         }
 
         function printReport() {

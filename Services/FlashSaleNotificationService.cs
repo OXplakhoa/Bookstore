@@ -121,6 +121,7 @@ public class FlashSaleNotificationService : IFlashSaleNotificationService
                         .ToList();
 
                     if (!userFlashSaleProducts.Any())
+                    // Không có sản phẩm nào để thông báo, bỏ qua để tiếp tục những user khác
                         continue;
 
                     // Tạo HTML email
