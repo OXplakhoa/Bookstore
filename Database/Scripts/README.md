@@ -12,6 +12,7 @@ This folder contains SQL Server scripts for the Bookstore application database e
 | `03_Functions.sql` | Scalar and table-valued functions | 15 functions |
 | `04_DatabaseBackup.sql` | Backup and restore procedures | 5 backup procedures |
 | `05_UserRoleManagement.sql` | User roles, permissions, and security | 5 roles, 9 procedures |
+| `06_ConcurrencyControl.sql` | Concurrency handling and locking strategies | 9 procedures, 4 schema changes |
 
 ## Prerequisites
 
@@ -28,6 +29,7 @@ Run scripts in the following order:
 3. **03_Functions.sql** - Creates functions (some procedures may use these)
 4. **04_DatabaseBackup.sql** - Creates backup procedures
 5. **05_UserRoleManagement.sql** - Creates database roles and permissions
+6. **06_ConcurrencyControl.sql** - Adds concurrency control mechanisms
 
 ## Quick Start
 
@@ -45,6 +47,7 @@ sqlcmd -S YOUR_SERVER -d BookstoreDb -i 02_StoredProcedures.sql
 sqlcmd -S YOUR_SERVER -d BookstoreDb -i 03_Functions.sql
 sqlcmd -S YOUR_SERVER -d BookstoreDb -i 04_DatabaseBackup.sql
 sqlcmd -S YOUR_SERVER -d BookstoreDb -i 05_UserRoleManagement.sql
+sqlcmd -S YOUR_SERVER -d BookstoreDb -i 06_ConcurrencyControl.sql
 ```
 
 ## Objects Created
@@ -130,6 +133,31 @@ sqlcmd -S YOUR_SERVER -d BookstoreDb -i 05_UserRoleManagement.sql
 | sp_GetFailedLogins | Audit failed logins |
 | sp_ResetUserLockout | Reset user lockout |
 
+### Concurrency Control (9 Procedures + Schema Changes)
+
+#### Schema Changes
+
+| Table | Column Added | Description |
+|-------|--------------|-------------|
+| Products | RowVersion | ROWVERSION for optimistic concurrency |
+| Orders | RowVersion | ROWVERSION for optimistic concurrency |
+| FlashSaleProducts | RowVersion | ROWVERSION for optimistic concurrency |
+| CartItems | RowVersion | ROWVERSION for optimistic concurrency |
+
+#### Concurrency Procedures
+
+| Procedure | Type | Description |
+|-----------|------|-------------|
+| sp_UpdateProductStock_Optimistic | Optimistic | Update stock with version check |
+| sp_UpdateOrderStatus_Optimistic | Optimistic | Update order with version check |
+| sp_DecrementStock_Atomic | Pessimistic | Atomic stock decrement with locks |
+| sp_IncrementStock_Atomic | Pessimistic | Atomic stock increment (returns) |
+| sp_PurchaseFlashSaleItem_Concurrent | Hybrid | Flash sale purchase with deadlock retry |
+| sp_CreateOrder_ConcurrencySafe | Hybrid | Order creation with deadlock handling |
+| sp_UpdateCartQuantity_Concurrent | Optimistic | Cart update with version check |
+| sp_GetProductWithVersion | Utility | Get product with RowVersion |
+| sp_GetOrderWithVersion | Utility | Get order with RowVersion |
+
 ## Usage Examples
 
 ### Get Dashboard Statistics
@@ -205,6 +233,51 @@ EXEC sp_GetUsersInAppRole @RoleName = 'Admin';
 
 -- Deactivate a user
 EXEC sp_DeactivateUser @UserId = 'user-guid', @Reason = N'Violation of terms';
+```
+
+### Concurrency Control
+
+```sql
+-- Optimistic concurrency: Update stock with version check
+DECLARE @Success BIT, @ErrorMessage NVARCHAR(500);
+EXEC sp_UpdateProductStock_Optimistic 
+    @ProductId = 1, 
+    @NewStock = 50, 
+    @ExpectedRowVersion = 0x00000000000007D1,  -- Get this from sp_GetProductWithVersion
+    @Success = @Success OUTPUT, 
+    @ErrorMessage = @ErrorMessage OUTPUT;
+
+-- Atomic stock decrement (prevents overselling)
+DECLARE @Success BIT, @NewStock INT, @ErrorMessage NVARCHAR(500);
+EXEC sp_DecrementStock_Atomic 
+    @ProductId = 1, 
+    @Quantity = 5, 
+    @Success = @Success OUTPUT, 
+    @NewStock = @NewStock OUTPUT, 
+    @ErrorMessage = @ErrorMessage OUTPUT;
+
+-- Concurrency-safe order creation (with deadlock retry)
+DECLARE @OrderId INT, @Success BIT, @ErrorMessage NVARCHAR(500);
+EXEC sp_CreateOrder_ConcurrencySafe 
+    @UserId = 'user-guid',
+    @ShippingName = N'Nguyen Van A',
+    @ShippingPhone = '0123456789',
+    @ShippingEmail = 'email@example.com',
+    @ShippingAddress = N'123 Street, District 1',
+    @PaymentMethod = 'COD',
+    @OrderId = @OrderId OUTPUT,
+    @Success = @Success OUTPUT,
+    @ErrorMessage = @ErrorMessage OUTPUT;
+
+-- Flash sale purchase with concurrency control
+DECLARE @Success BIT, @ActualPrice DECIMAL(18,2), @ErrorMessage NVARCHAR(500);
+EXEC sp_PurchaseFlashSaleItem_Concurrent 
+    @FlashSaleProductId = 1,
+    @UserId = 'user-guid',
+    @Quantity = 2,
+    @Success = @Success OUTPUT,
+    @ActualPrice = @ActualPrice OUTPUT,
+    @ErrorMessage = @ErrorMessage OUTPUT;
 ```
 
 ## Integration with .NET 4.7.2

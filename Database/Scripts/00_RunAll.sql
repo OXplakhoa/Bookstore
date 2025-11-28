@@ -19,6 +19,7 @@ ORDER OF EXECUTION:
 3. 03_Functions.sql - Scalar and table-valued functions
 4. 04_DatabaseBackup.sql - Backup procedures
 5. 05_UserRoleManagement.sql - User roles and permissions
+6. 06_ConcurrencyControl.sql - Concurrency handling mechanisms
 
 =============================================
 */
@@ -70,6 +71,10 @@ GO
 -- STEP 5: Run User Role Management
 -- :r .\05_UserRoleManagement.sql
 -- OR copy contents of 05_UserRoleManagement.sql here
+
+-- STEP 6: Run Concurrency Control
+-- :r .\06_ConcurrencyControl.sql
+-- OR copy contents of 06_ConcurrencyControl.sql here
 */
 
 -- =============================================
@@ -119,6 +124,18 @@ FROM sys.database_principals
 WHERE type = 'R' AND name LIKE 'Bookstore%'
 ORDER BY name;
 
+-- List RowVersion columns (for concurrency control)
+PRINT '';
+PRINT 'ROWVERSION COLUMNS (Concurrency Control):';
+SELECT 
+    OBJECT_NAME(object_id) AS TableName,
+    name AS ColumnName,
+    TYPE_NAME(user_type_id) AS DataType
+FROM sys.columns 
+WHERE TYPE_NAME(user_type_id) = 'timestamp'
+AND OBJECT_NAME(object_id) IN ('Products', 'Orders', 'FlashSaleProducts', 'CartItems')
+ORDER BY TableName;
+
 PRINT '';
 PRINT '=============================================';
 PRINT 'Setup Complete!';
@@ -130,6 +147,7 @@ PRINT '2. Update backup path in sp_BackupDatabase_* procedures';
 PRINT '3. Change default passwords for SQL logins';
 PRINT '4. Configure connection string in application';
 PRINT '5. Test stored procedures with sample data';
+PRINT '6. Consider enabling READ_COMMITTED_SNAPSHOT for better concurrency';
 PRINT '=============================================';
 GO
 
@@ -153,4 +171,10 @@ EXEC sp_GetUserStats @Days = 30;
 SELECT dbo.fn_FormatVNDCurrency(150000);
 SELECT dbo.fn_GetOrderStatusDisplay('Pending');
 SELECT * FROM dbo.fn_GetFlashSaleProducts();
+
+-- Test Concurrency Procedures
+DECLARE @Success BIT, @NewStock INT, @ErrorMessage NVARCHAR(500);
+EXEC sp_DecrementStock_Atomic @ProductId = 1, @Quantity = 1, 
+    @Success = @Success OUTPUT, @NewStock = @NewStock OUTPUT, @ErrorMessage = @ErrorMessage OUTPUT;
+SELECT @Success AS Success, @NewStock AS NewStock, @ErrorMessage AS ErrorMessage;
 */
