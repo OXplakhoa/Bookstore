@@ -195,35 +195,50 @@ GO
 USE master;
 GO
 
+/*
+=============================================
+SECURITY WARNING: The login creation statements below use placeholder passwords.
+Before running in production:
+1. Replace '<CHANGE_THIS_PASSWORD>' with strong, unique passwords
+2. Store passwords securely (use a password manager or secrets vault)
+3. Never commit actual passwords to source control
+4. Consider using Windows Authentication instead of SQL Authentication
+=============================================
+*/
+
 -- Create application login (production)
+-- CHANGE PASSWORD BEFORE DEPLOYING TO PRODUCTION!
 IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = 'BookstoreApp')
 BEGIN
-    CREATE LOGIN [BookstoreApp] WITH PASSWORD = 'ChangeThisPassword!123';
-    PRINT 'Login BookstoreApp created.';
+    CREATE LOGIN [BookstoreApp] WITH PASSWORD = '<CHANGE_APP_PASSWORD>';
+    PRINT 'Login BookstoreApp created. WARNING: Change the password before production use!';
 END
 GO
 
 -- Create read-only login (for reporting)
+-- CHANGE PASSWORD BEFORE DEPLOYING TO PRODUCTION!
 IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = 'BookstoreReports')
 BEGIN
-    CREATE LOGIN [BookstoreReports] WITH PASSWORD = 'ReportPassword!456';
-    PRINT 'Login BookstoreReports created.';
+    CREATE LOGIN [BookstoreReports] WITH PASSWORD = '<CHANGE_REPORTS_PASSWORD>';
+    PRINT 'Login BookstoreReports created. WARNING: Change the password before production use!';
 END
 GO
 
 -- Create admin login
+-- CHANGE PASSWORD BEFORE DEPLOYING TO PRODUCTION!
 IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = 'BookstoreDbAdmin')
 BEGIN
-    CREATE LOGIN [BookstoreDbAdmin] WITH PASSWORD = 'AdminPassword!789';
-    PRINT 'Login BookstoreDbAdmin created.';
+    CREATE LOGIN [BookstoreDbAdmin] WITH PASSWORD = '<CHANGE_ADMIN_PASSWORD>';
+    PRINT 'Login BookstoreDbAdmin created. WARNING: Change the password before production use!';
 END
 GO
 
 -- Create backup operator login
+-- CHANGE PASSWORD BEFORE DEPLOYING TO PRODUCTION!
 IF NOT EXISTS (SELECT 1 FROM sys.server_principals WHERE name = 'BookstoreBackup')
 BEGIN
-    CREATE LOGIN [BookstoreBackup] WITH PASSWORD = 'BackupPassword!012';
-    PRINT 'Login BookstoreBackup created.';
+    CREATE LOGIN [BookstoreBackup] WITH PASSWORD = '<CHANGE_BACKUP_PASSWORD>';
+    PRINT 'Login BookstoreBackup created. WARNING: Change the password before production use!';
 END
 GO
 
@@ -588,6 +603,10 @@ PRINT '=============================================';
 PRINT 'User Role Management scripts created successfully!';
 PRINT '=============================================';
 PRINT '';
+PRINT '*** SECURITY WARNING ***';
+PRINT 'SQL Logins have placeholder passwords (<CHANGE_*_PASSWORD>).';
+PRINT 'You MUST change these passwords before using in production!';
+PRINT '';
 PRINT 'Database Roles:';
 PRINT '1. BookstoreReader - Read-only access';
 PRINT '2. BookstoreWriter - Read/Write for customer operations';
@@ -595,7 +614,7 @@ PRINT '3. BookstoreAdmin - Full administrative access';
 PRINT '4. BookstoreReporter - Reporting and analytics';
 PRINT '5. BookstoreBackupOperator - Backup operations';
 PRINT '';
-PRINT 'SQL Logins (CHANGE PASSWORDS IN PRODUCTION!):';
+PRINT 'SQL Logins (CHANGE PLACEHOLDER PASSWORDS!):';
 PRINT '1. BookstoreApp - Application login (BookstoreWriter)';
 PRINT '2. BookstoreReports - Reporting login (BookstoreReporter)';
 PRINT '3. BookstoreDbAdmin - Admin login (BookstoreAdmin)';

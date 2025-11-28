@@ -46,6 +46,21 @@ BEGIN
     DECLARE @BackupFileName NVARCHAR(500);
     DECLARE @BackupName NVARCHAR(200);
     DECLARE @SQL NVARCHAR(MAX);
+    DECLARE @FileExists INT;
+    
+    -- Validate backup path ends with backslash
+    IF RIGHT(@BackupPath, 1) <> '\'
+        SET @BackupPath = @BackupPath + '\';
+    
+    -- Check if backup path exists using xp_fileexist
+    EXEC master.dbo.xp_fileexist @BackupPath, @FileExists OUTPUT;
+    IF @FileExists = 0
+    BEGIN
+        PRINT 'WARNING: Backup path does not exist or is not accessible: ' + @BackupPath;
+        PRINT 'Please ensure the directory exists and SQL Server has write permissions.';
+        RAISERROR(N'Backup path does not exist: %s', 16, 1, @BackupPath);
+        RETURN;
+    END
     
     -- Generate backup filename with timestamp
     SET @BackupFileName = @BackupPath + @DatabaseName + '_Full_' 
@@ -119,6 +134,20 @@ BEGIN
     DECLARE @BackupFileName NVARCHAR(500);
     DECLARE @BackupName NVARCHAR(200);
     DECLARE @SQL NVARCHAR(MAX);
+    DECLARE @FileExists INT;
+    
+    -- Validate backup path ends with backslash
+    IF RIGHT(@BackupPath, 1) <> '\'
+        SET @BackupPath = @BackupPath + '\';
+    
+    -- Check if backup path exists
+    EXEC master.dbo.xp_fileexist @BackupPath, @FileExists OUTPUT;
+    IF @FileExists = 0
+    BEGIN
+        PRINT 'WARNING: Backup path does not exist or is not accessible: ' + @BackupPath;
+        RAISERROR(N'Backup path does not exist: %s', 16, 1, @BackupPath);
+        RETURN;
+    END
     
     -- Generate backup filename with timestamp
     SET @BackupFileName = @BackupPath + @DatabaseName + '_Diff_' 
@@ -178,6 +207,20 @@ BEGIN
     DECLARE @BackupName NVARCHAR(200);
     DECLARE @SQL NVARCHAR(MAX);
     DECLARE @RecoveryModel NVARCHAR(50);
+    DECLARE @FileExists INT;
+    
+    -- Validate backup path ends with backslash
+    IF RIGHT(@BackupPath, 1) <> '\'
+        SET @BackupPath = @BackupPath + '\';
+    
+    -- Check if backup path exists
+    EXEC master.dbo.xp_fileexist @BackupPath, @FileExists OUTPUT;
+    IF @FileExists = 0
+    BEGIN
+        PRINT 'WARNING: Backup path does not exist or is not accessible: ' + @BackupPath;
+        RAISERROR(N'Backup path does not exist: %s', 16, 1, @BackupPath);
+        RETURN;
+    END
     
     -- Check recovery model
     SELECT @RecoveryModel = recovery_model_desc 

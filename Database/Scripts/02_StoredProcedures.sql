@@ -221,7 +221,31 @@ BEGIN
     BEGIN TRANSACTION;
     
     BEGIN TRY
-        -- Calculate total from cart
+        -- Validate products in cart are active and exist
+        IF EXISTS (
+            SELECT 1 FROM dbo.CartItems ci
+            LEFT JOIN dbo.Products p ON ci.ProductId = p.ProductId
+            WHERE ci.UserId = @UserId
+            AND (p.ProductId IS NULL OR p.IsActive = 0)
+        )
+        BEGIN
+            RAISERROR(N'Một hoặc nhiều sản phẩm trong giỏ hàng không còn khả dụng.', 16, 1);
+            RETURN;
+        END
+        
+        -- Check stock availability for all cart items
+        IF EXISTS (
+            SELECT 1 FROM dbo.CartItems ci
+            INNER JOIN dbo.Products p ON ci.ProductId = p.ProductId
+            WHERE ci.UserId = @UserId
+            AND ci.Quantity > p.Stock
+        )
+        BEGIN
+            RAISERROR(N'Một hoặc nhiều sản phẩm không đủ số lượng trong kho.', 16, 1);
+            RETURN;
+        END
+        
+        -- Calculate total from cart (only active products)
         DECLARE @Total DECIMAL(18, 2);
         SELECT @Total = SUM(
             CASE 
@@ -231,7 +255,8 @@ BEGIN
         )
         FROM dbo.CartItems ci
         INNER JOIN dbo.Products p ON ci.ProductId = p.ProductId
-        WHERE ci.UserId = @UserId;
+        WHERE ci.UserId = @UserId
+        AND p.IsActive = 1;
         
         IF @Total IS NULL OR @Total = 0
         BEGIN
@@ -254,7 +279,7 @@ BEGIN
         
         SET @OrderId = SCOPE_IDENTITY();
         
-        -- Create order items from cart
+        -- Create order items from cart (only active products)
         INSERT INTO dbo.OrderItems (
             OrderId, ProductId, Quantity, UnitPrice,
             FlashSaleProductId, WasOnFlashSale, FlashSaleDiscount
@@ -276,7 +301,8 @@ BEGIN
             END
         FROM dbo.CartItems ci
         INNER JOIN dbo.Products p ON ci.ProductId = p.ProductId
-        WHERE ci.UserId = @UserId;
+        WHERE ci.UserId = @UserId
+        AND p.IsActive = 1;
         
         -- Update flash sale sold counts
         UPDATE fsp
@@ -284,6 +310,13 @@ BEGIN
         FROM dbo.FlashSaleProducts fsp
         INNER JOIN dbo.CartItems ci ON fsp.FlashSaleProductId = ci.FlashSaleProductId
         WHERE ci.UserId = @UserId AND ci.FlashSaleProductId IS NOT NULL;
+        
+        -- Decrease product stock
+        UPDATE p
+        SET p.Stock = p.Stock - ci.Quantity
+        FROM dbo.Products p
+        INNER JOIN dbo.CartItems ci ON p.ProductId = ci.ProductId
+        WHERE ci.UserId = @UserId;
         
         -- Clear cart
         DELETE FROM dbo.CartItems WHERE UserId = @UserId;
@@ -716,7 +749,17 @@ GO
 
 -- =============================================
 -- STORED PROCEDURE 12: sp_SearchProducts
--- Description: Full-text search for products
+-- Description: Product search with LIKE patterns
+-- 
+-- PERFORMANCE NOTE: This procedure uses LIKE with wildcards which 
+-- may cause full table scans on large datasets. For better performance
+-- in production with large product catalogs, consider:
+-- 1. Enable SQL Server Full-Text Search and use CONTAINS/FREETEXT
+-- 2. Create a Full-Text index on Title, Author, Description columns:
+--    CREATE FULLTEXT CATALOG BookstoreFTCatalog AS DEFAULT;
+--    CREATE FULLTEXT INDEX ON dbo.Products (Title, Author, Description)
+--        KEY INDEX PK_Products ON BookstoreFTCatalog;
+-- 3. Replace LIKE with CONTAINS for indexed searches
 -- =============================================
 IF OBJECT_ID('dbo.sp_SearchProducts', 'P') IS NOT NULL
     DROP PROCEDURE dbo.sp_SearchProducts;
