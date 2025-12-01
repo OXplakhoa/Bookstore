@@ -74,97 +74,144 @@
         return status.Trim().ToLowerInvariant() switch
         {
             "pending" => "bg-warning text-dark",
-            "processing" => "bg-warning text-dark",
+            "processing" => "bg-info",
             "shipped" => "bg-primary",
             "delivered" => "bg-success",
             "completed" => "bg-success",
             "cancelled" => "bg-danger",
-            _ => "bg-info text-dark"
+            _ => "bg-secondary"
         };
     }
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-@if (TempData["SuccessMessage"] is string successMessage)
-{
-    <div class="alert alert-success" role="alert">@successMessage</div>
-}
-@if (TempData["ErrorMessage"] is string errorMessage)
-{
-    <div class="alert alert-danger" role="alert">@errorMessage</div>
-}
-
-<div class="table-responsive">
-    <table class="table table-striped align-middle">
-        <thead class="table-light">
-            <tr>
-                <th scope="col">Mã đơn</th>
-                <th scope="col">Khách hàng</th>
-                <th scope="col">Ngày đặt</th>
-                <th scope="col" class="text-end">Tổng tiền</th>
-                <th scope="col">Thanh toán</th>
-                <th scope="col">Trạng thái</th>
-                <th scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>
+<!-- Orders Card -->
+<div class="admin-card">
+    <div class="admin-card-header d-flex justify-content-between align-items-center">
+        <h5 class="admin-card-title mb-0">
+            <i class="bi bi-cart-check me-2"></i>Danh sách đơn hàng
+        </h5>
+        <span class="badge bg-primary">Tổng @Model.TotalPages trang</span>
+    </div>
+    <div class="admin-card-body p-0">
         @if (Model.Any())
         {
-            foreach (var order in Model)
-            {
-                <tr>
-                    <td>@(order.OrderNumber ?? $"#{order.OrderId:0000}")</td>
-                    <td>
-                        <div class="fw-semibold">@DisplayValue(!string.IsNullOrWhiteSpace(order.User?.FullName) ? order.User!.FullName : order.User?.Email)</div>
-                        <div class="text-muted small">@DisplayValue(order.User?.Email)</div>
-                    </td>
-                    <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td class="text-end">@FormatCurrency(order.Total)</td>
-                    <td>
-                        <span class="badge rounded-pill px-3 py-2 fw-semibold @PaymentStatusClass(order.PaymentStatus)">@TranslatePaymentStatus(order.PaymentStatus)</span>
-                    </td>
-                    <td>
-                        <span class="badge rounded-pill px-3 py-2 fw-semibold @OrderStatusClass(order.OrderStatus)">@TranslateOrderStatus(order.OrderStatus)</span>
-                    </td>
-                    <td class="text-end">
-                        <a asp-area="Admin" asp-controller="Orders" asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-sm btn-outline-primary">
-                            Chi tiết
-                        </a>
-                    </td>
-                </tr>
-            }
+            <div class="table-responsive">
+                <table class="table table-hover admin-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn hàng</th>
+                            <th>Khách hàng</th>
+                            <th>Ngày đặt</th>
+                            <th class="text-end">Tổng tiền</th>
+                            <th class="text-center">Thanh toán</th>
+                            <th class="text-center">Trạng thái</th>
+                            <th class="text-center" style="width: 120px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="order-icon me-3">
+                                            <i class="bi bi-receipt"></i>
+                                        </div>
+                                        <strong class="text-primary">@(order.OrderNumber ?? $"#{order.OrderId:0000}")</strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-semibold text-dark">@DisplayValue(!string.IsNullOrWhiteSpace(order.User?.FullName) ? order.User!.FullName : order.User?.Email)</div>
+                                    <small class="text-muted">@DisplayValue(order.User?.Email)</small>
+                                </td>
+                                <td>
+                                    <div>@order.OrderDate.ToString("dd/MM/yyyy")</div>
+                                    <small class="text-muted">@order.OrderDate.ToString("HH:mm")</small>
+                                </td>
+                                <td class="text-end fw-bold text-success">@FormatCurrency(order.Total)</td>
+                                <td class="text-center">
+                                    <span class="badge rounded-pill @PaymentStatusClass(order.PaymentStatus)">
+                                        @TranslatePaymentStatus(order.PaymentStatus)
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge rounded-pill @OrderStatusClass(order.OrderStatus)">
+                                        @TranslateOrderStatus(order.OrderStatus)
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <a asp-area="Admin" asp-controller="Orders" asp-action="Details" asp-route-id="@order.OrderId" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye me-1"></i>Chi tiết
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         }
         else
         {
-            <tr>
-                <td colspan="7" class="text-center text-muted py-4">Không có đơn hàng nào.</td>
-            </tr>
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="bi bi-inbox" style="font-size: 4rem; color: #dee2e6;"></i>
+                </div>
+                <h4 class="text-muted">Chưa có đơn hàng nào</h4>
+                <p class="text-muted mb-0">Các đơn hàng mới sẽ xuất hiện ở đây.</p>
+            </div>
         }
-        </tbody>
-    </table>
+    </div>
+    
+    @if (Model.TotalPages > 1)
+    {
+        <div class="admin-card-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="text-muted">
+                <i class="bi bi-info-circle me-1"></i>Trang @Model.PageIndex / @Model.TotalPages
+            </div>
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item @(Model.HasPreviousPage ? string.Empty : "disabled")">
+                        <a class="page-link" asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-page="@(Model.PageIndex - 1)">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    @for (var pageNumber = 1; pageNumber <= Model.TotalPages; pageNumber++)
+                    {
+                        <li class="page-item @(pageNumber == Model.PageIndex ? "active" : string.Empty)">
+                            <a class="page-link" asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-page="@pageNumber">@pageNumber</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.HasNextPage ? string.Empty : "disabled")">
+                        <a class="page-link" asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-page="@(Model.PageIndex + 1)">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
 </div>
 
-@if (Model.TotalPages > 1)
-{
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <div>
-            Hiển thị trang @Model.PageIndex trên tổng @Model.TotalPages trang
-        </div>
-        <nav>
-            <ul class="pagination mb-0">
-                <li class="page-item @(Model.HasPreviousPage ? string.Empty : "disabled")">
-                    <a class="page-link" asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-page="@(Model.PageIndex - 1)">Trước</a>
-                </li>
-                @for (var pageNumber = 1; pageNumber <= Model.TotalPages; pageNumber++)
-                {
-                    <li class="page-item @(pageNumber == Model.PageIndex ? "active" : string.Empty)">
-                        <a class="page-link" asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-page="@pageNumber">@pageNumber</a>
-                    </li>
-                }
-                <li class="page-item @(Model.HasNextPage ? string.Empty : "disabled")">
-                    <a class="page-link" asp-area="Admin" asp-controller="Orders" asp-action="Index" asp-route-page="@(Model.PageIndex + 1)">Tiếp</a>
-                </li>
-            </ul>
-        </nav>
-    </div>
+@section Styles {
+<style>
+    .order-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--admin-primary) 0%, #764ba2 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.1rem;
+    }
+    
+    .admin-card-footer {
+        padding: 1rem 1.5rem;
+        background: #f8f9fc;
+        border-top: 1px solid #e3e6f0;
+    }
+</style>
 }

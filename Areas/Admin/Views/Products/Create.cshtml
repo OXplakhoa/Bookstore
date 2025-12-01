@@ -4,108 +4,170 @@
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="row">
-    <div class="col-md-8">
-        <form asp-action="Create" method="post" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="mb-3">
-                        <label asp-for="Title" class="form-label"></label>
-                        <input asp-for="Title" class="form-control" />
-                        <span asp-validation-for="Title" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="mb-3">
-                        <label asp-for="Price" class="form-label"></label>
-                        <div class="input-group">
-                            <input asp-for="Price" class="form-control" type="number" step="0.01" />
-                            <span class="input-group-text">₫</span>
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h5 class="admin-card-title mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Thông tin sản phẩm
+                </h5>
+            </div>
+            <div class="admin-card-body">
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <div class="form-floating">
+                                <input asp-for="Title" class="form-control" placeholder="Nhập tên sản phẩm" />
+                                <label asp-for="Title"><i class="bi bi-book me-1"></i>Tên sản phẩm *</label>
+                                <span asp-validation-for="Title" class="text-danger small"></span>
+                            </div>
                         </div>
-                        <span asp-validation-for="Price" class="text-danger"></span>
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                <input asp-for="Price" class="form-control" type="number" step="1000" placeholder="Giá" />
+                                <label asp-for="Price"><i class="bi bi-currency-dollar me-1"></i>Giá bán (₫) *</label>
+                                <span asp-validation-for="Price" class="text-danger small"></span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label asp-for="Author" class="form-label"></label>
-                        <input asp-for="Author" class="form-control" />
-                        <span asp-validation-for="Author" class="text-danger"></span>
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="Author" class="form-control" placeholder="Tác giả" />
+                                <label asp-for="Author"><i class="bi bi-person me-1"></i>Tác giả *</label>
+                                <span asp-validation-for="Author" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-floating">
+                                <input asp-for="Stock" class="form-control" type="number" min="0" placeholder="Số lượng" />
+                                <label asp-for="Stock"><i class="bi bi-box me-1"></i>Tồn kho *</label>
+                                <span asp-validation-for="Stock" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-floating">
+                                <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(Model.Categories, "CategoryId", "Name"))">
+                                    <option value="">-- Chọn --</option>
+                                </select>
+                                <label asp-for="CategoryId"><i class="bi bi-tag me-1"></i>Danh mục *</label>
+                                <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="mb-3">
-                        <label asp-for="Stock" class="form-label"></label>
-                        <input asp-for="Stock" class="form-control" type="number" min="0" />
-                        <span asp-validation-for="Stock" class="text-danger"></span>
+
+                    <div class="mt-3">
+                        <label asp-for="Description" class="form-label"><i class="bi bi-file-text me-1"></i>Mô tả sản phẩm</label>
+                        <textarea asp-for="Description" class="form-control" rows="5" placeholder="Nhập mô tả chi tiết về sản phẩm..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
                     </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="mb-3">
-                        <label asp-for="CategoryId" class="form-label"></label>
-                        <select asp-for="CategoryId" class="form-select" asp-items="@(new SelectList(Model.Categories, "CategoryId", "Name"))">
-                            <option value="">-- Chọn danh mục --</option>
-                        </select>
-                        <span asp-validation-for="CategoryId" class="text-danger"></span>
+
+                    <div class="mt-3">
+                        <label class="form-label"><i class="bi bi-images me-1"></i>Hình ảnh sản phẩm</label>
+                        <div class="upload-zone p-4 text-center border-2 border-dashed rounded-3">
+                            <i class="bi bi-cloud-arrow-up text-primary" style="font-size: 2.5rem;"></i>
+                            <p class="mb-2 mt-2">Kéo thả hoặc click để chọn hình ảnh</p>
+                            <input asp-for="ImageFiles" class="form-control" type="file" multiple accept="image/*" />
+                            <small class="text-muted">Hỗ trợ: JPG, PNG, GIF (tối đa 5MB mỗi ảnh)</small>
+                        </div>
+                        <span asp-validation-for="ImageFiles" class="text-danger small"></span>
                     </div>
-                </div>
-            </div>
 
-            <div class="mb-3">
-                <label asp-for="Description" class="form-label"></label>
-                <textarea asp-for="Description" class="form-control" rows="5"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="MainImageIndex" class="form-control" type="number" min="0" placeholder="0" />
+                                <label asp-for="MainImageIndex">Thứ tự hình chính (bắt đầu từ 0)</label>
+                                <span asp-validation-for="MainImageIndex" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center">
+                            <div class="form-check form-switch">
+                                <input asp-for="IsActive" class="form-check-input" style="width: 3em; height: 1.5em;" />
+                                <label asp-for="IsActive" class="form-check-label ms-2">
+                                    <strong>Kích hoạt sản phẩm</strong>
+                                    <br><small class="text-muted">Hiển thị trên website</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
 
-            <div class="mb-3">
-                <label asp-for="ImageFiles" class="form-label"></label>
-                <input asp-for="ImageFiles" class="form-control" type="file" multiple accept="image/*" />
-                <div class="form-text">Chọn nhiều hình ảnh (JPG, PNG, GIF)</div>
-                <span asp-validation-for="ImageFiles" class="text-danger"></span>
-            </div>
+                    <hr class="my-4" />
 
-            <div class="mb-3">
-                <label asp-for="MainImageIndex" class="form-label"></label>
-                <input asp-for="MainImageIndex" class="form-control" type="number" min="0" />
-                <div class="form-text">Nhập số thứ tự hình ảnh muốn làm hình chính (bắt đầu từ 0)</div>
-                <span asp-validation-for="MainImageIndex" class="text-danger"></span>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle me-2"></i>Tạo sản phẩm
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-arrow-left me-2"></i>Quay lại
+                        </a>
+                    </div>
+                </form>
             </div>
-
-            <div class="mb-3 form-check">
-                <input asp-for="IsActive" class="form-check-input" />
-                <label asp-for="IsActive" class="form-check-label"></label>
-            </div>
-
-            <div class="mb-3">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check-circle"></i> Tạo sản phẩm
-                </button>
-                <a asp-action="Index" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Quay lại
-                </a>
-            </div>
-        </form>
+        </div>
     </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Hướng dẫn</h5>
+    
+    <div class="col-lg-4">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h5 class="admin-card-title mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>Hướng dẫn
+                </h5>
             </div>
-            <div class="card-body">
-                <ul class="list-unstyled">
-                    <li><i class="bi bi-info-circle text-primary"></i> Tất cả các trường có dấu * là bắt buộc</li>
-                    <li><i class="bi bi-image text-primary"></i> Có thể upload nhiều hình ảnh cùng lúc</li>
-                    <li><i class="bi bi-star text-primary"></i> Hình ảnh chính sẽ hiển thị đầu tiên</li>
-                    <li><i class="bi bi-eye-slash text-primary"></i> Sản phẩm tạm dừng sẽ không hiển thị trên website</li>
-                </ul>
+            <div class="admin-card-body">
+                <div class="d-flex align-items-start mb-3">
+                    <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
+                    <div>
+                        <strong>Thông tin bắt buộc</strong>
+                        <p class="text-muted mb-0 small">Các trường có dấu * cần được điền đầy đủ</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-start mb-3">
+                    <i class="bi bi-images text-primary me-3 mt-1"></i>
+                    <div>
+                        <strong>Hình ảnh</strong>
+                        <p class="text-muted mb-0 small">Upload nhiều ảnh, chọn ảnh chính để hiển thị đầu tiên</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-start mb-3">
+                    <i class="bi bi-eye text-info me-3 mt-1"></i>
+                    <div>
+                        <strong>Trạng thái</strong>
+                        <p class="text-muted mb-0 small">Sản phẩm tạm dừng sẽ không hiển thị trên website</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-currency-dollar text-warning me-3 mt-1"></i>
+                    <div>
+                        <strong>Giá bán</strong>
+                        <p class="text-muted mb-0 small">Nhập giá bán lẻ (VNĐ), không cần nhập dấu chấm ngăn cách</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Styles {
+<style>
+    .upload-zone {
+        background: #f8f9fc;
+        border: 2px dashed #d1d3e2;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .upload-zone:hover {
+        border-color: var(--admin-primary);
+        background: rgba(102, 126, 234, 0.05);
+    }
+    .border-dashed {
+        border-style: dashed !important;
+    }
+</style>
+}
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

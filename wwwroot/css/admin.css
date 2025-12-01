@@ -1,0 +1,684 @@
+/* ==========================================================================
+   Admin Panel - Modern Dashboard Theme
+   For Siêu thị sách mini - Bookstore Admin
+   ========================================================================== */
+
+/* ==========================================================================
+   1. CSS Variables
+   ========================================================================== */
+:root {
+    /* Admin specific colors */
+    --admin-primary: #4e73df;
+    --admin-primary-dark: #224abe;
+    --admin-success: #1cc88a;
+    --admin-info: #36b9cc;
+    --admin-warning: #f6c23e;
+    --admin-danger: #e74a3b;
+    
+    /* Sidebar */
+    --sidebar-bg: #1e293b;
+    --sidebar-hover: #334155;
+    --sidebar-active: #4e73df;
+    --sidebar-text: #94a3b8;
+    --sidebar-text-active: #ffffff;
+    --sidebar-width: 260px;
+}
+
+/* ==========================================================================
+   2. Admin Body & Layout
+   ========================================================================== */
+.admin-body {
+    background-color: #f1f5f9;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+}
+
+/* ==========================================================================
+   3. Admin Sidebar
+   ========================================================================== */
+.admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--sidebar-bg);
+    z-index: 1040;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff !important;
+    text-decoration: none;
+}
+
+.sidebar-brand:hover {
+    color: #ffffff !important;
+}
+
+.sidebar-brand i {
+    font-size: 1.5rem;
+    color: var(--admin-primary);
+}
+
+.sidebar-toggle {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.25rem;
+    padding: 0.25rem;
+    cursor: pointer;
+}
+
+.sidebar-toggle:hover {
+    color: #ffffff;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-section {
+    margin-bottom: 1rem;
+}
+
+.nav-section-title {
+    display: block;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+}
+
+.sidebar-nav .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    color: var(--sidebar-text) !important;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.sidebar-nav .nav-link:hover {
+    color: #ffffff !important;
+    background: var(--sidebar-hover);
+    border-left-color: var(--admin-primary);
+}
+
+.sidebar-nav .nav-link.active {
+    color: #ffffff !important;
+    background: linear-gradient(90deg, rgba(78, 115, 223, 0.3) 0%, transparent 100%);
+    border-left-color: var(--admin-primary);
+}
+
+.sidebar-nav .nav-link i {
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+}
+
+/* ==========================================================================
+   4. Admin Main Content Area
+   ========================================================================== */
+.admin-main {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-header {
+    background: #ffffff;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+.admin-page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.admin-content {
+    flex: 1;
+    padding: 2rem;
+}
+
+.admin-footer {
+    background: #ffffff;
+    padding: 1rem 2rem;
+    border-top: 1px solid #e2e8f0;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+/* ==========================================================================
+   5. Admin Cards
+   ========================================================================== */
+.admin-card {
+    background: #ffffff;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-bottom: 1.5rem;
+}
+
+.admin-card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    background: transparent;
+}
+
+.admin-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.admin-card-body {
+    padding: 1.5rem;
+}
+
+.admin-card-footer {
+    padding: 1rem 1.5rem;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    border-radius: 0 0 12px 12px;
+}
+
+/* ==========================================================================
+   6. Stat Cards
+   ========================================================================== */
+.stat-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card-primary { border-left-color: var(--admin-primary); }
+.stat-card-success { border-left-color: var(--admin-success); }
+.stat-card-info { border-left-color: var(--admin-info); }
+.stat-card-warning { border-left-color: var(--admin-warning); }
+.stat-card-danger { border-left-color: var(--admin-danger); }
+.stat-card-purple { border-left-color: #8b5cf6; }
+
+.stat-card-body {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.stat-card-primary .stat-icon { background: rgba(78, 115, 223, 0.1); color: var(--admin-primary); }
+.stat-card-success .stat-icon { background: rgba(28, 200, 138, 0.1); color: var(--admin-success); }
+.stat-card-info .stat-icon { background: rgba(54, 185, 204, 0.1); color: var(--admin-info); }
+.stat-card-warning .stat-icon { background: rgba(246, 194, 62, 0.1); color: var(--admin-warning); }
+.stat-card-danger .stat-icon { background: rgba(231, 74, 59, 0.1); color: var(--admin-danger); }
+.stat-card-purple .stat-icon { background: rgba(139, 92, 246, 0.1); color: #8b5cf6; }
+
+.stat-info {
+    flex: 1;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.stat-card-footer {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.stat-card-footer a {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--admin-primary);
+    text-decoration: none;
+}
+
+.stat-card-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   7. Admin Tables
+   ========================================================================== */
+.admin-table {
+    width: 100%;
+    margin: 0;
+}
+
+.admin-table thead {
+    background: #f8fafc;
+}
+
+.admin-table th {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    border: none !important;
+    padding: 1rem 1.5rem;
+    white-space: nowrap;
+}
+
+.admin-table td {
+    padding: 1rem 1.5rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #e2e8f0 !important;
+    border-top: none !important;
+}
+
+.admin-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+/* ==========================================================================
+   8. Chart Container
+   ========================================================================== */
+.chart-container {
+    position: relative;
+    width: 100%;
+}
+
+/* ==========================================================================
+   9. Responsive Sidebar
+   ========================================================================== */
+@media (max-width: 991.98px) {
+    .admin-sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .admin-sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .admin-main {
+        margin-left: 0;
+    }
+}
+
+@media (min-width: 992px) {
+    .sidebar-toggle {
+        display: none;
+    }
+}
+
+/* ==========================================================================
+   10. Welcome Banner
+   ========================================================================== */
+.welcome-banner {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-primary-dark) 100%);
+    color: #ffffff;
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.stats-card .border-left-danger {
+    border-left: 4px solid var(--card-border-left-danger) !important;
+}
+
+.stats-card .card-body {
+    padding: 1.25rem;
+}
+
+.stats-card .stats-icon {
+    font-size: 2rem;
+    opacity: 0.8;
+}
+
+.stats-card .stats-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+}
+
+.stats-card .stats-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* ==========================================================================
+   6. Admin Tables
+   ========================================================================== */
+.admin-table {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.admin-table thead {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.admin-table th {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    border: none;
+    padding: 1rem;
+}
+
+.admin-table td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+/* ==========================================================================
+   7. Admin Forms
+   ========================================================================== */
+.admin-form .form-control,
+.admin-form .form-select {
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.admin-form .form-control:focus,
+.admin-form .form-select:focus {
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.15);
+}
+
+.admin-form .form-label {
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 0.5rem;
+}
+
+/* ==========================================================================
+   8. Admin Buttons
+   ========================================================================== */
+.btn-admin-primary {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.625rem 1.5rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(78, 115, 223, 0.3);
+    transition: all 0.2s ease;
+}
+
+.btn-admin-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(78, 115, 223, 0.4);
+    color: white;
+}
+
+.btn-admin-success {
+    background: linear-gradient(135deg, #1cc88a 0%, #17a673 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.625rem 1.5rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(28, 200, 138, 0.3);
+}
+
+.btn-admin-danger {
+    background: linear-gradient(135deg, #e74a3b 0%, #be2617 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.625rem 1.5rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(231, 74, 59, 0.3);
+}
+
+/* ==========================================================================
+   9. Page Header
+   ========================================================================== */
+.admin-page-header {
+    padding: 1.5rem 0;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-page-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+/* ==========================================================================
+   10. Admin Cards
+   ========================================================================== */
+.admin-card {
+    background: white;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.admin-card .card-header {
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem 1.25rem;
+    font-weight: 700;
+    color: var(--admin-primary);
+}
+
+.admin-card .card-body {
+    padding: 1.25rem;
+}
+
+/* ==========================================================================
+   11. Quick Actions
+   ========================================================================== */
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    background: white;
+    border: 2px solid #e2e8f0;
+    color: #334155;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.quick-action-btn:hover {
+    border-color: var(--admin-primary);
+    color: var(--admin-primary);
+    transform: translateX(5px);
+}
+
+.quick-action-btn i {
+    font-size: 1.25rem;
+}
+
+/* ==========================================================================
+   12. Status Badges
+   ========================================================================== */
+.status-badge {
+    padding: 0.35rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-badge.pending {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.status-badge.processing {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.status-badge.shipped {
+    background: #e0e7ff;
+    color: #4f46e5;
+}
+
+.status-badge.delivered {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.status-badge.cancelled {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* ==========================================================================
+   13. Chart Container
+   ========================================================================== */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+.chart-card {
+    background: white;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.chart-card .card-header {
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem 1.25rem;
+    font-weight: 700;
+}
+
+/* ==========================================================================
+   14. Responsive
+   ========================================================================== */
+@media (max-width: 991px) {
+    .admin-sidebar {
+        position: fixed;
+        left: -260px;
+        top: 56px;
+        z-index: 1050;
+        width: 260px;
+        transition: left 0.3s ease;
+    }
+
+    .admin-sidebar.show {
+        left: 0;
+    }
+
+    .admin-main {
+        margin-left: 0 !important;
+    }
+}
+
+/* ==========================================================================
+   15. Animations
+   ========================================================================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.stats-card:nth-child(1) { animation-delay: 0.1s; }
+.stats-card:nth-child(2) { animation-delay: 0.2s; }
+.stats-card:nth-child(3) { animation-delay: 0.3s; }
+.stats-card:nth-child(4) { animation-delay: 0.4s; }
