@@ -5,126 +5,174 @@
     ViewData["Title"] = "Giỏ hàng";
 }
 
-<div class="container my-4">
-    <h2>Giỏ hàng của bạn</h2>
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">
+                <i class="bi bi-cart3 text-primary me-2"></i>Giỏ hàng của bạn
+            </h2>
+            <p class="text-muted mb-0">@Model.ItemCount sản phẩm trong giỏ hàng</p>
+        </div>
+        <a asp-controller="Products" asp-action="Index" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-2"></i>Tiếp tục mua sắm
+        </a>
+    </div>
     
     @if (Model.CartItems.Any())
     {
         <div class="row">
-            <div class="col-md-8">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Sản phẩm</th>
-                                <th>Giá</th>
-                                <th>Số lượng</th>
-                                <th>Tổng</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model.CartItems)
-                            {
-                                var effectivePrice = item.LockedPrice ?? item.Product!.Price;
-                                var lineTotal = effectivePrice * item.Quantity;
-                                var originalLineTotal = item.Product!.Price * item.Quantity;
-                                var hasFlash = item.LockedPrice.HasValue;
+            <!-- Cart Items -->
+            <div class="col-lg-8 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <div class="row text-muted small fw-bold">
+                            <div class="col-md-6">Sản phẩm</div>
+                            <div class="col-md-2 text-center">Đơn giá</div>
+                            <div class="col-md-2 text-center">Số lượng</div>
+                            <div class="col-md-2 text-end">Thành tiền</div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        @foreach (var item in Model.CartItems)
+                        {
+                            var effectivePrice = item.LockedPrice ?? item.Product!.Price;
+                            var lineTotal = effectivePrice * item.Quantity;
+                            var originalLineTotal = item.Product!.Price * item.Quantity;
+                            var hasFlash = item.LockedPrice.HasValue;
+                            var mainImage = item.Product?.ProductImages?.FirstOrDefault(i => i.IsMain) ?? 
+                                          item.Product?.ProductImages?.FirstOrDefault();
+                            var imageUrl = mainImage?.ImageUrl ?? Url.Content("~/images/no-image.svg");
 
-                                <tr>
-                                    <td>
+                            <div class="cart-item p-3 border-bottom">
+                                <div class="row align-items-center">
+                                    <!-- Product Info -->
+                                    <div class="col-md-6">
                                         <div class="d-flex align-items-center">
-                                            @{
-                                                var mainImage = item.Product?.ProductImages?.FirstOrDefault(i => i.IsMain) ?? 
-                                                              item.Product?.ProductImages?.FirstOrDefault();
-                                                var imageUrl = mainImage?.ImageUrl ?? Url.Content("~/images/no-image.svg");
-                                            }
-                                            <img src="@imageUrl" class="me-3" style="width: 60px; height: 60px; object-fit: cover;" alt="@item.Product?.Title" />
+                                            <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Product?.ProductId">
+                                                <img src="@imageUrl" class="cart-item-image rounded me-3" 
+                                                     style="width: 80px; height: 80px; object-fit: cover;" 
+                                                     alt="@item.Product?.Title" />
+                                            </a>
                                             <div>
-                                                <h6 class="mb-1">@item.Product?.Title</h6>
-                                                <small class="text-muted">@item.Product?.Author</small>
+                                                <h6 class="mb-1">
+                                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Product?.ProductId"
+                                                       class="text-decoration-none text-dark">
+                                                        @item.Product?.Title
+                                                    </a>
+                                                </h6>
+                                                <small class="text-muted">
+                                                    <i class="bi bi-person me-1"></i>@item.Product?.Author
+                                                </small>
                                                 @if (hasFlash)
                                                 {
-                                                    <div>
-                                                        <span class="badge bg-danger ms-0">Flash Sale</span>
+                                                    <div class="mt-1">
+                                                        <span class="badge bg-danger">
+                                                            <i class="bi bi-lightning-charge-fill me-1"></i>Flash Sale
+                                                        </span>
                                                     </div>
                                                 }
                                             </div>
                                         </div>
-                                    </td>
+                                    </div>
 
-                                    <td>
+                                    <!-- Unit Price -->
+                                    <div class="col-md-2 text-center">
                                         @if (hasFlash)
                                         {
-                                            <div class="text-muted text-decoration-line-through small">
-                                                @item.Product!.Price.ToString("N0")₫
-                                            </div>
-                                            <div class="text-danger fw-bold">
-                                                @item.LockedPrice!.Value.ToString("N0")₫
-                                            </div>
-                                            <div class="small text-success">
-                                                Tiết kiệm @((item.Product!.Price - item.LockedPrice!.Value).ToString("N0"))₫
-                                            </div>
+                                            <div class="product-price-old small">@item.Product!.Price.ToString("N0")₫</div>
+                                            <div class="product-price">@item.LockedPrice!.Value.ToString("N0")₫</div>
                                         }
                                         else
                                         {
                                             <span class="fw-semibold">@item.Product!.Price.ToString("N0")₫</span>
                                         }
-                                    </td>
+                                    </div>
 
-                                    <td>
-                                        <div class="input-group" style="width: 120px;">
-                                            <button class="btn btn-outline-secondary btn-sm" type="button" 
-                                                    onclick="updateQuantity(@item.CartItemId, @(item.Quantity - 1))">-</button>
-                                            <input type="number" class="form-control form-control-sm text-center" 
+                                    <!-- Quantity -->
+                                    <div class="col-md-2 text-center">
+                                        <div class="d-inline-flex align-items-center">
+                                            <button class="quantity-btn" type="button" 
+                                                    onclick="updateQuantity(@item.CartItemId, @(item.Quantity - 1))">
+                                                <i class="bi bi-dash"></i>
+                                            </button>
+                                            <input type="number" class="quantity-input" 
                                                    value="@item.Quantity" min="1" max="@item.Product?.Stock"
                                                    onchange="updateQuantity(@item.CartItemId, this.value)" />
-                                            <button class="btn btn-outline-secondary btn-sm" type="button" 
-                                                    onclick="updateQuantity(@item.CartItemId, @(item.Quantity + 1))">+</button>
+                                            <button class="quantity-btn" type="button" 
+                                                    onclick="updateQuantity(@item.CartItemId, @(item.Quantity + 1))">
+                                                <i class="bi bi-plus"></i>
+                                            </button>
                                         </div>
-                                    </td>
+                                    </div>
 
-                                    <td class="fw-bold">
+                                    <!-- Line Total -->
+                                    <div class="col-md-2 text-end">
                                         @if (hasFlash)
                                         {
-                                            <div class="text-muted text-decoration-line-through small">
-                                                @originalLineTotal.ToString("N0")₫
-                                            </div>
+                                            <div class="product-price-old small">@originalLineTotal.ToString("N0")₫</div>
                                         }
-                                        <div>@lineTotal.ToString("N0")₫</div>
-                                    </td>
-
-                                    <td>
-                                        <button class="btn btn-outline-danger btn-sm" 
+                                        <div class="product-price">@lineTotal.ToString("N0")₫</div>
+                                        <button class="btn btn-link text-danger p-0 mt-1 small" 
                                                 onclick="removeFromCart(@item.CartItemId)">
-                                            <i class="bi bi-trash"></i> Xóa
+                                            <i class="bi bi-trash me-1"></i>Xóa
                                         </button>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Tóm tắt đơn hàng</h5>
+            <!-- Order Summary -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm cart-summary">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-receipt me-2"></i>Tóm tắt đơn hàng
+                        </h5>
                     </div>
                     <div class="card-body">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Tạm tính (@Model.ItemCount sản phẩm):</span>
-                            <span>@Model.TotalPrice.ToString("N0")₫</span>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Tạm tính (@Model.ItemCount sản phẩm)</span>
+                            <span class="fw-semibold">@Model.TotalPrice.ToString("N0")₫</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Phí vận chuyển</span>
+                            <span class="text-success fw-semibold">Miễn phí</span>
                         </div>
                         <hr>
-                        <div class="d-flex justify-content-between fw-bold">
-                            <span>Tổng cộng:</span>
-                            <span class="text-primary">@Model.TotalPrice.ToString("N0")₫</span>
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="fw-bold fs-5">Tổng cộng</span>
+                            <span class="fw-bold fs-5 text-primary">@Model.TotalPrice.ToString("N0")₫</span>
                         </div>
-                        <div class="d-grid gap-2 mt-3">
-                            <a asp-controller="Checkout" asp-action="Index" class="btn btn-primary btn-lg">Thanh toán</a>
-                            <a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary">Tiếp tục mua sắm</a>
+                        
+                        <div class="d-grid gap-2">
+                            <a asp-controller="Checkout" asp-action="Index" class="btn btn-primary btn-lg">
+                                <i class="bi bi-credit-card me-2"></i>Tiến hành thanh toán
+                            </a>
+                            <a asp-controller="Products" asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Tiếp tục mua sắm
+                            </a>
+                        </div>
+
+                        <!-- Trust Badges -->
+                        <div class="mt-4 pt-3 border-top">
+                            <div class="d-flex justify-content-around text-center text-muted small">
+                                <div>
+                                    <i class="bi bi-shield-check fs-5 d-block mb-1 text-success"></i>
+                                    An toàn
+                                </div>
+                                <div>
+                                    <i class="bi bi-truck fs-5 d-block mb-1 text-primary"></i>
+                                    Giao nhanh
+                                </div>
+                                <div>
+                                    <i class="bi bi-arrow-repeat fs-5 d-block mb-1 text-warning"></i>
+                                    Đổi trả
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -133,11 +181,17 @@
     }
     else
     {
-        <div class="text-center py-5">
-            <i class="bi bi-cart-x" style="font-size: 4rem; color: #6c757d;"></i>
-            <h4 class="mt-3">Giỏ hàng trống</h4>
-            <p class="text-muted">Bạn chưa có sản phẩm nào trong giỏ hàng</p>
-            <a asp-controller="Products" asp-action="Index" class="btn btn-primary">Bắt đầu mua sắm</a>
+        <div class="empty-state card shadow-sm">
+            <div class="card-body py-5">
+                <div class="empty-state-icon">
+                    <i class="bi bi-cart-x"></i>
+                </div>
+                <h4 class="empty-state-title">Giỏ hàng trống</h4>
+                <p class="empty-state-text">Bạn chưa có sản phẩm nào trong giỏ hàng</p>
+                <a asp-controller="Products" asp-action="Index" class="btn btn-primary btn-lg">
+                    <i class="bi bi-book me-2"></i>Khám phá sách ngay
+                </a>
+            </div>
         </div>
     }
 </div>
@@ -145,7 +199,7 @@
 @section Scripts {
     <script>
         function updateQuantity(cartItemId, quantity) {
-            if (quantity < 0) return;
+            if (quantity < 1) return;
             
             fetch('/Cart/UpdateQuantity', {
                 method: 'POST',
@@ -158,7 +212,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    location.reload(); // Reload to show updated totals
+                    location.reload();
                 } else {
                     alert('Lỗi: ' + data.message);
                 }
@@ -170,7 +224,7 @@
         }
 
         function removeFromCart(cartItemId) {
-            if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+            if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
                 fetch('/Cart/RemoveFromCart', {
                     method: 'POST',
                     headers: {

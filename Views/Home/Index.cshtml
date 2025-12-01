@@ -1,102 +1,164 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Trang chủ";
     var flashSaleProducts = ViewBag.FlashSaleProducts as IEnumerable<FlashSaleProduct>;
 }
 
-<div class="text-center mb-5">
-    <h1 class="display-4">Chào mừng đến Bookstore</h1>
-    <p class="lead">Khám phá thế giới sách cùng chúng tôi</p>
-    <a asp-controller="Products" asp-action="Index" class="btn btn-primary btn-lg">Xem tất cả sách</a>
-</div>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7 hero-content">
+                <h1 class="hero-title animate-fade-in">
+                    Chào mừng đến với<br>
+                    <span style="color: white;">Siêu thị sách mini</span>
+                </h1>
+                <p class="hero-subtitle animate-fade-in">
+                    Khám phá kho tàng tri thức với hàng ngàn đầu sách chất lượng. 
+                    Đọc sách - Mở ra cánh cửa tri thức!
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a asp-controller="Products" asp-action="Index" class="btn hero-btn animate-fade-in">
+                        <i class="bi bi-book me-2"></i> Khám phá sách
+                    </a>
+                    <a asp-controller="Products" asp-action="Index" asp-route-sort="newest" class="btn btn-outline-light btn-lg animate-fade-in">
+                        <i class="bi bi-stars me-2"></i> Sách mới
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-center">
+                <div class="animate-bounce" style="font-size: 10rem; opacity: 0.9;">
+                    📚
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
+<!-- Flash Sale Section -->
 @if (flashSaleProducts != null && flashSaleProducts.Any())
 {
-    <section class="container my-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>
-                <i class="bi bi-lightning-charge-fill text-danger"></i>
-                Flash Sale - Đang diễn ra
-            </h2>
-            <a asp-controller="Products" asp-action="Index" class="btn btn-outline-danger">
-                Xem tất cả <i class="bi bi-arrow-right"></i>
-            </a>
-        </div>
-        
-        <div class="row g-4">
-            @foreach (var item in flashSaleProducts)
-            {
-                var product = item.Product;
-                var imageUrl = product?.ProductImages?.FirstOrDefault()?.ImageUrl ?? Url.Content("~/images/no-image.svg");
-                var remaining = item.StockLimit.HasValue ? Math.Max(0, item.StockLimit.Value - item.SoldCount) : (int?)null;
-                
-                <div class="col-6 col-md-3">
-                    <div class="card h-100 flash-sale-card position-relative">
-                        <div class="discount-percentage">
-                            -@item.DiscountPercentage.ToString("F0")%
-                        </div>
-                        
-                        <a asp-controller="Products" asp-action="Details" asp-route-id="@product?.ProductId">
-                            <img src="@imageUrl" class="card-img-top" style="height:200px; object-fit:cover;" alt="@product?.Title" />
-                        </a>
-                        
-                        <div class="card-body d-flex flex-column">
-                            <h6 class="card-title text-truncate" title="@product?.Title">
-                                @product?.Title
-                            </h6>
-                            <p class="text-muted small mb-2">@product?.Author</p>
+    <section class="flash-sale-section">
+        <div class="container">
+            <div class="flash-sale-header">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <h2 class="flash-sale-title mb-0">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                        Flash Sale - Giảm giá sốc!
+                    </h2>
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-light">
+                        Xem tất cả <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                @foreach (var item in flashSaleProducts.Take(4))
+                {
+                    var product = item.Product;
+                    var imageUrl = product?.ProductImages?.FirstOrDefault()?.ImageUrl ?? Url.Content("~/images/no-image.svg");
+                    var remaining = item.StockLimit.HasValue ? Math.Max(0, item.StockLimit.Value - item.SoldCount) : (int?)null;
+                    
+                    <div class="col-6 col-md-3">
+                        <div class="card h-100 product-card flash-sale-card">
+                            <div class="discount-badge">
+                                -@item.DiscountPercentage.ToString("F0")%
+                            </div>
                             
-                            <div class="mt-auto">
-                                <div class="mb-2">
-                                    <span class="text-muted text-decoration-line-through small d-block">
-                                        @item.OriginalPrice.ToString("N0")₫
-                                    </span>
-                                    <strong class="text-danger fs-5">
-                                        @item.SalePrice.ToString("N0")₫
-                                    </strong>
-                                </div>
-                                
-                                <div class="small countdown mb-2" data-countdown-end="@item.FlashSale!.EndDate.ToString("o")">
-                                    Đang tải...
-                                </div>
-                                
-                                @if (remaining.HasValue)
-                                {
-                                    <div class="mb-2">
-                                        <small class="text-warning">
-                                            <i class="bi bi-fire"></i> Chỉ còn @remaining
-                                        </small>
-                                    </div>
-                                }
-                                
-                                <a asp-controller="Products" asp-action="Details" asp-route-id="@product?.ProductId" 
-                                   class="btn btn-danger btn-sm w-100">
-                                    🔥 Mua ngay
+                            <div class="card-img-wrapper">
+                                <a asp-controller="Products" asp-action="Details" asp-route-id="@product?.ProductId">
+                                    <img src="@imageUrl" class="card-img-top" alt="@product?.Title" />
                                 </a>
+                            </div>
+                            
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title" title="@product?.Title">
+                                    @product?.Title
+                                </h6>
+                                <p class="text-muted small mb-2">@product?.Author</p>
+                                
+                                <div class="mt-auto">
+                                    <div class="mb-2">
+                                        <span class="product-price-old d-block">
+                                            @item.OriginalPrice.ToString("N0")₫
+                                        </span>
+                                        <span class="product-price">
+                                            @item.SalePrice.ToString("N0")₫
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="countdown mb-2" data-countdown-end="@item.FlashSale!.EndDate.ToString("o")">
+                                        <i class="bi bi-clock me-1"></i> Đang tải...
+                                    </div>
+                                    
+                                    @if (remaining.HasValue)
+                                    {
+                                        <div class="mb-2">
+                                            <small class="text-warning fw-bold">
+                                                <i class="bi bi-fire"></i> Chỉ còn @remaining sản phẩm
+                                            </small>
+                                        </div>
+                                    }
+                                    
+                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@product?.ProductId" 
+                                       class="btn btn-danger btn-sm w-100">
+                                        🔥 Mua ngay
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            }
+                }
+            </div>
         </div>
     </section>
 }
 
-<section class="container my-5">
-    <div class="row">
-        <div class="col-md-4 text-center mb-4">
-            <i class="bi bi-truck fs-1 text-primary"></i>
-            <h4 class="mt-3">Giao hàng nhanh</h4>
-            <p class="text-muted">Giao hàng toàn quốc trong 2-3 ngày</p>
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Tại sao chọn chúng tôi?</h2>
+            <p class="text-muted">Cam kết mang đến trải nghiệm mua sách tuyệt vời nhất</p>
         </div>
-        <div class="col-md-4 text-center mb-4">
-            <i class="bi bi-shield-check fs-1 text-success"></i>
-            <h4 class="mt-3">Thanh toán an toàn</h4>
-            <p class="text-muted">Hỗ trợ nhiều hình thức thanh toán</p>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-truck"></i>
+                    </div>
+                    <h4 class="feature-title">Giao hàng nhanh</h4>
+                    <p class="feature-text">Giao hàng toàn quốc trong 2-3 ngày. Miễn phí vận chuyển cho đơn hàng từ 300.000₫</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h4 class="feature-title">Thanh toán an toàn</h4>
+                    <p class="feature-text">Hỗ trợ nhiều hình thức thanh toán: COD, thẻ tín dụng, ví điện tử</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-headset"></i>
+                    </div>
+                    <h4 class="feature-title">Hỗ trợ 24/7</h4>
+                    <p class="feature-text">Đội ngũ hỗ trợ luôn sẵn sàng giải đáp mọi thắc mắc của bạn</p>
+                </div>
+            </div>
         </div>
-        <div class="col-md-4 text-center mb-4">
-            <i class="bi bi-headset fs-1 text-info"></i>
-            <h4 class="mt-3">Hỗ trợ 24/7</h4>
-            <p class="text-muted">Đội ngũ hỗ trợ luôn sẵn sàng</p>
-        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5" style="background: var(--primary-gradient);">
+    <div class="container text-center text-white">
+        <h2 class="fw-bold mb-3">Bắt đầu hành trình đọc sách ngay hôm nay!</h2>
+        <p class="mb-4 opacity-90">Hàng ngàn đầu sách đang chờ bạn khám phá</p>
+        <a asp-controller="Products" asp-action="Index" class="btn btn-light btn-lg">
+            <i class="bi bi-arrow-right-circle me-2"></i> Xem ngay
+        </a>
     </div>
 </section>
