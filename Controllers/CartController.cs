@@ -14,12 +14,18 @@ namespace Bookstore.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IFlashSaleService _flashSaleService;
+        private readonly IDatabaseService _databaseService;
 
-        public CartController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IFlashSaleService flashSaleService)
+        public CartController(
+            ApplicationDbContext context, 
+            UserManager<ApplicationUser> userManager, 
+            IFlashSaleService flashSaleService,
+            IDatabaseService databaseService)
         {
             _context = context;
             _userManager = userManager;
             _flashSaleService = flashSaleService;
+            _databaseService = databaseService;
         }
 
         // GET: /Cart
@@ -265,11 +271,29 @@ namespace Bookstore.Controllers
                 return Json(new { cartCount = 0 });
             }
 
-            var cartCount = await _context.CartItems
-                .Where(c => c.UserId == userId)
-                .SumAsync(c => c.Quantity);
+            // Sử dụng SQL Function fn_GetUserCartCount
+            var cartCount = await _databaseService.GetUserCartCountAsync(userId);
 
             return Json(new { cartCount = cartCount });
+        }
+        // GET: /Cart/GetCartSummary
+        [HttpGet]
+        public async Task<IActionResult> GetCartSummary()
+        {
+            var userId = _userManager.GetUserId(User);
+            if (userId == null)
+            {
+                return Json(new { totalAmount = 0, itemCount = 0 });
+            }
+
+            // Sử dụng DatabaseService để gọi cả 2 SQL Functions
+            var summary = await _databaseService.GetCartSummaryAsync(userId);
+            
+            return Json(new { 
+                totalAmount = summary.TotalAmount, 
+                totalAmountFormatted = summary.TotalAmount.ToString("N0") + "₫",
+                itemCount = summary.ItemCount 
+            });
         }
     }
 
