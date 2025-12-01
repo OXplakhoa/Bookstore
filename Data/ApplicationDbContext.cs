@@ -28,9 +28,22 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         base.OnModelCreating(builder);
         
-        // Configure ApplicationUser table to handle triggers (fixes OUTPUT clause issue)
+        // Configure tables with database triggers (fixes EF Core OUTPUT clause issue)
+        // See: https://aka.ms/efcore-docs-sqlserver-save-changes-and-output-clause
         builder.Entity<ApplicationUser>()
-            .ToTable(tb => tb.HasTrigger("SomeTrigger"));
+            .ToTable(tb => tb.HasTrigger("tr_Users_UpdateTimestamp"));
+        
+        builder.Entity<Order>()
+            .ToTable(tb => tb.HasTrigger("tr_Orders_SetCreatedAt"));
+        
+        builder.Entity<Product>()
+            .ToTable(tb => tb.HasTrigger("tr_Products_SetCreatedAt"));
+        
+        builder.Entity<Review>()
+            .ToTable(tb => tb.HasTrigger("tr_Reviews_SetCreatedAt"));
+        
+        builder.Entity<CartItem>()
+            .ToTable(tb => tb.HasTrigger("tr_CartItems_SetAddedAt"));
         
         // Add Configurations
         builder.Entity<Product>()
