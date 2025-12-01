@@ -1,0 +1,312 @@
+@model List<Bookstore.Models.Dtos.DailyRevenueDto>
+@{
+    ViewData["Title"] = "Báo cáo doanh thu";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var startDate = (DateTime)ViewBag.StartDate;
+    var endDate = (DateTime)ViewBag.EndDate;
+    var totalRevenue = (decimal)ViewBag.TotalRevenue;
+    var totalOrders = (int)ViewBag.TotalOrders;
+    var avgOrderValue = (decimal)ViewBag.AverageOrderValue;
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="bi bi-graph-up text-success"></i> Báo cáo doanh thu
+    </h1>
+    <a href="@Url.Action("Index", "Reports")" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Quay lại báo cáo
+    </a>
+</div>
+
+<!-- Filter -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="bi bi-funnel"></i> Lọc theo khoảng thời gian
+        </h6>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-center">
+            <div class="col-auto">
+                <label for="startDate" class="col-form-label">Từ ngày:</label>
+            </div>
+            <div class="col-auto">
+                <input type="date" name="startDate" id="startDate" class="form-control" 
+                       value="@startDate.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-auto">
+                <label for="endDate" class="col-form-label">Đến ngày:</label>
+            </div>
+            <div class="col-auto">
+                <input type="date" name="endDate" id="endDate" class="form-control" 
+                       value="@endDate.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Xem báo cáo
+                </button>
+            </div>
+            <div class="col-auto">
+                <div class="btn-group" role="group">
+                    <a href="@Url.Action("Revenue", new { startDate = DateTime.UtcNow.AddDays(-7), endDate = DateTime.UtcNow })" 
+                       class="btn btn-outline-secondary">7 ngày</a>
+                    <a href="@Url.Action("Revenue", new { startDate = DateTime.UtcNow.AddDays(-30), endDate = DateTime.UtcNow })" 
+                       class="btn btn-outline-secondary">30 ngày</a>
+                    <a href="@Url.Action("Revenue", new { startDate = DateTime.UtcNow.AddDays(-90), endDate = DateTime.UtcNow })" 
+                       class="btn btn-outline-secondary">90 ngày</a>
+                    <a href="@Url.Action("Revenue", new { startDate = new DateTime(DateTime.UtcNow.Year, 1, 1), endDate = DateTime.UtcNow })" 
+                       class="btn btn-outline-secondary">Năm nay</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Tổng doanh thu</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">@totalRevenue.ToString("N0")₫</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng đơn hàng</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">@totalOrders đơn</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Giá trị TB/đơn</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">@avgOrderValue.ToString("N0")₫</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Doanh thu TB/ngày</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    @{
+                        var days = (endDate - startDate).Days + 1;
+                        var avgDaily = days > 0 ? totalRevenue / days : 0;
+                    }
+                    @avgDaily.ToString("N0")₫
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Chart -->
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="bi bi-bar-chart"></i> Biểu đồ doanh thu (@startDate.ToString("dd/MM") - @endDate.ToString("dd/MM/yyyy"))
+                </h6>
+            </div>
+            <div class="card-body">
+                @if (Model.Any())
+                {
+                    var maxRevenue = Model.Max(r => r.TotalRevenue);
+                    <div class="chart-container" style="max-height: 400px; overflow-y: auto;">
+                        @foreach (var day in Model.OrderBy(r => r.ReportDate))
+                        {
+                            var percentage = maxRevenue > 0 ? (day.TotalRevenue / maxRevenue * 100) : 0;
+                            var barClass = percentage switch
+                            {
+                                > 80 => "bg-success",
+                                > 50 => "bg-info",
+                                > 30 => "bg-primary",
+                                > 10 => "bg-warning",
+                                _ => "bg-secondary"
+                            };
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <small><strong>@day.ReportDate.ToString("dd/MM")</strong> (@day.ReportDate.ToString("ddd"))</small>
+                                    <small>@day.TotalRevenue.ToString("N0")₫ (@day.OrderCount đơn)</small>
+                                </div>
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar @barClass" role="progressbar" 
+                                         style="width: @percentage.ToString("F0")%"
+                                         aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                        <h5 class="mt-3 text-muted">Không có dữ liệu trong khoảng thời gian này</h5>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Days -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-success">
+                    <i class="bi bi-trophy"></i> Top 5 ngày doanh thu cao nhất
+                </h6>
+            </div>
+            <div class="card-body">
+                @if (Model.Any())
+                {
+                    <ol class="list-group list-group-numbered">
+                        @foreach (var day in Model.OrderByDescending(r => r.TotalRevenue).Take(5))
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">@day.ReportDate.ToString("dd/MM/yyyy")</div>
+                                    <small class="text-muted">@day.OrderCount đơn hàng</small>
+                                </div>
+                                <span class="badge bg-success rounded-pill">@day.TotalRevenue.ToString("N0")₫</span>
+                            </li>
+                        }
+                    </ol>
+                }
+                else
+                {
+                    <p class="text-muted text-center">Chưa có dữ liệu</p>
+                }
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="card shadow mt-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-info">
+                    <i class="bi bi-calculator"></i> Thống kê chi tiết
+                </h6>
+            </div>
+            <div class="card-body">
+                @if (Model.Any())
+                {
+                    var maxDay = Model.OrderByDescending(r => r.TotalRevenue).First();
+                    var minDay = Model.Where(r => r.TotalRevenue > 0).OrderBy(r => r.TotalRevenue).FirstOrDefault();
+                    var avgRevenue = Model.Average(r => r.TotalRevenue);
+                    var totalDays = Model.Count;
+                    var daysWithSales = Model.Count(r => r.OrderCount > 0);
+                    
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Số ngày có dữ liệu:</span>
+                            <strong>@totalDays ngày</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Ngày có đơn hàng:</span>
+                            <strong>@daysWithSales ngày</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Doanh thu cao nhất:</span>
+                            <strong class="text-success">@maxDay.TotalRevenue.ToString("N0")₫</strong>
+                        </li>
+                        @if (minDay != null)
+                        {
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Doanh thu thấp nhất:</span>
+                                <strong class="text-warning">@minDay.TotalRevenue.ToString("N0")₫</strong>
+                            </li>
+                        }
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Doanh thu trung bình:</span>
+                            <strong class="text-info">@avgRevenue.ToString("N0")₫</strong>
+                        </li>
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted text-center">Chưa có dữ liệu</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Daily Table -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="bi bi-table"></i> Chi tiết doanh thu theo ngày
+        </h6>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ngày</th>
+                            <th>Thứ</th>
+                            <th class="text-center">Số đơn hàng</th>
+                            <th class="text-end">Doanh thu</th>
+                            <th class="text-end">Giá trị TB/đơn</th>
+                            <th class="text-center">So với TB</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            var avgDailyRevenue = Model.Average(r => r.TotalRevenue);
+                        }
+                        @foreach (var day in Model.OrderByDescending(r => r.ReportDate))
+                        {
+                            var comparison = avgDailyRevenue > 0 ? ((day.TotalRevenue - avgDailyRevenue) / avgDailyRevenue * 100) : 0;
+                            var comparisonClass = comparison >= 0 ? "text-success" : "text-danger";
+                            var comparisonIcon = comparison >= 0 ? "bi-arrow-up" : "bi-arrow-down";
+                            
+                            <tr>
+                                <td><strong>@day.ReportDate.ToString("dd/MM/yyyy")</strong></td>
+                                <td>@day.ReportDate.ToString("dddd", new System.Globalization.CultureInfo("vi-VN"))</td>
+                                <td class="text-center">
+                                    <span class="badge bg-primary">@day.OrderCount</span>
+                                </td>
+                                <td class="text-end">
+                                    <strong>@day.TotalRevenue.ToString("N0")₫</strong>
+                                </td>
+                                <td class="text-end text-muted">
+                                    @day.AverageOrderValue.ToString("N0")₫
+                                </td>
+                                <td class="text-center @comparisonClass">
+                                    <i class="bi @comparisonIcon"></i>
+                                    @Math.Abs(comparison).ToString("F1")%
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="2"><strong>Tổng cộng:</strong></td>
+                            <td class="text-center"><strong>@totalOrders</strong></td>
+                            <td class="text-end"><strong>@totalRevenue.ToString("N0")₫</strong></td>
+                            <td class="text-end"><strong>@avgOrderValue.ToString("N0")₫</strong></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                <h5 class="mt-3 text-muted">Không có dữ liệu</h5>
+                <p class="text-muted">Không có đơn hàng nào trong khoảng thời gian đã chọn</p>
+            </div>
+        }
+    </div>
+</div>

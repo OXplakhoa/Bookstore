@@ -107,9 +107,13 @@ node_modules/
 bower_components/
 
 # Copilot instructions (personal)
+.github
 .github/copilot-instructions.md
 .github/chatmodes/Plan.chatmode.md
 PHASE5_FRONTEND_IMPLEMENTATION.md
 PHASE6_START_TESTING.md
+PHASE6_TESTING_CHECKLIST.md
 PHASE7_ANALYTICS_NOTIFICATIONS_COMPLETE.md
+SENDGRID_EMAIL_IMPROVEMENTS.md
 requirement.txt
+PHASE6_TESTING_CHECKLIST.md

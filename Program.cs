@@ -45,6 +45,9 @@ builder.Services.AddScoped<IStripePaymentService, StripePaymentService>();
 builder.Services.AddScoped<IFlashSaleService, FlashSaleService>();
 builder.Services.AddScoped<IFlashSaleNotificationService, FlashSaleNotificationService>();
 
+// Register Database Service (for Stored Procedures & Functions)
+builder.Services.AddScoped<IDatabaseService, DatabaseService>();
+
 var app = builder.Build();
 
 // pipeline (giữ nguyên cấu hình mặc định)
