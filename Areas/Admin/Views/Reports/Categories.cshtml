@@ -1,0 +1,235 @@
+@model List<Bookstore.Models.Dtos.CategoryStatisticsDto>
+@{
+    ViewData["Title"] = "Thống kê danh mục";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var totalProducts = (int)ViewBag.TotalProducts;
+    var totalSold = (int)ViewBag.TotalSold;
+    var totalRevenue = (decimal)ViewBag.TotalRevenue;
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="bi bi-tags text-info"></i> Thống kê danh mục
+    </h1>
+    <a href="@Url.Action("Index", "Reports")" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Quay lại báo cáo
+    </a>
+</div>
+
+<!-- Summary -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Tổng danh mục</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Count danh mục</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng sản phẩm</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">@totalProducts sản phẩm</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Tổng đã bán</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">@totalSold sản phẩm</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Tổng doanh thu</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">@totalRevenue.ToString("N0")₫</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Chart Column -->
+    <div class="col-lg-5 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="bi bi-pie-chart"></i> Phân bổ doanh thu theo danh mục
+                </h6>
+            </div>
+            <div class="card-body">
+                @if (Model.Any() && totalRevenue > 0)
+                {
+                    @foreach (var cat in Model.OrderByDescending(c => c.TotalRevenue))
+                    {
+                        var percentage = totalRevenue > 0 ? (cat.TotalRevenue / totalRevenue * 100) : 0;
+                        var colorClass = percentage switch
+                        {
+                            > 30 => "bg-success",
+                            > 20 => "bg-info",
+                            > 10 => "bg-primary",
+                            > 5 => "bg-warning",
+                            _ => "bg-secondary"
+                        };
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span><strong>@cat.CategoryName</strong></span>
+                                <span class="text-muted">@percentage.ToString("F1")%</span>
+                            </div>
+                            <div class="progress" style="height: 20px;">
+                                <div class="progress-bar @colorClass" role="progressbar" 
+                                     style="width: @percentage.ToString("F0")%"
+                                     aria-valuenow="@percentage" aria-valuemin="0" aria-valuemax="100">
+                                    @cat.TotalRevenue.ToString("N0")₫
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted text-center">Chưa có dữ liệu doanh thu</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Column -->
+    <div class="col-lg-7 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="bi bi-table"></i> Chi tiết thống kê danh mục
+                </h6>
+            </div>
+            <div class="card-body">
+                @if (Model.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Danh mục</th>
+                                    <th class="text-center">Sản phẩm</th>
+                                    <th class="text-center">Đã bán</th>
+                                    <th class="text-end">Doanh thu</th>
+                                    <th class="text-center">Tỷ lệ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ var index = 1; }
+                                @foreach (var cat in Model.OrderByDescending(c => c.TotalRevenue))
+                                {
+                                    var percentage = totalRevenue > 0 ? (cat.TotalRevenue / totalRevenue * 100) : 0;
+                                    var badgeClass = percentage switch
+                                    {
+                                        > 30 => "bg-success",
+                                        > 20 => "bg-info",
+                                        > 10 => "bg-primary",
+                                        > 5 => "bg-warning",
+                                        _ => "bg-secondary"
+                                    };
+                                    <tr>
+                                        <td>@index</td>
+                                        <td>
+                                            <strong>@cat.CategoryName</strong>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-dark">@cat.ProductCount</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-primary">@cat.TotalSold</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <strong>@cat.TotalRevenue.ToString("N0")₫</strong>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge @badgeClass">@percentage.ToString("F1")%</span>
+                                        </td>
+                                    </tr>
+                                    index++;
+                                }
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="2"><strong>Tổng cộng:</strong></td>
+                                    <td class="text-center"><strong>@totalProducts</strong></td>
+                                    <td class="text-center"><strong>@totalSold</strong></td>
+                                    <td class="text-end"><strong>@totalRevenue.ToString("N0")₫</strong></td>
+                                    <td class="text-center"><strong>100%</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-tags text-muted" style="font-size: 3rem;"></i>
+                        <h5 class="mt-3 text-muted">Chưa có danh mục nào</h5>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Analysis -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="bi bi-graph-up"></i> Phân tích hiệu suất danh mục
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            @if (Model.Any())
+            {
+                var bestCategory = Model.OrderByDescending(c => c.TotalRevenue).FirstOrDefault();
+                var worstCategory = Model.Where(c => c.TotalRevenue > 0).OrderBy(c => c.TotalRevenue).FirstOrDefault();
+                var bestSelling = Model.OrderByDescending(c => c.TotalSold).FirstOrDefault();
+                
+                <div class="col-md-4">
+                    <div class="card bg-success text-white mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="bi bi-trophy"></i> Doanh thu cao nhất</h6>
+                            <h4>@bestCategory?.CategoryName</h4>
+                            <p class="mb-0">@bestCategory?.TotalRevenue.ToString("N0")₫</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="bi bi-fire"></i> Bán chạy nhất</h6>
+                            <h4>@bestSelling?.CategoryName</h4>
+                            <p class="mb-0">@bestSelling?.TotalSold sản phẩm đã bán</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-warning text-dark mb-3">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="bi bi-exclamation-triangle"></i> Cần cải thiện</h6>
+                            @if (worstCategory != null && worstCategory.CategoryId != bestCategory?.CategoryId)
+                            {
+                                <h4>@worstCategory.CategoryName</h4>
+                                <p class="mb-0">@worstCategory.TotalRevenue.ToString("N0")₫</p>
+                            }
+                            else
+                            {
+                                <h4>N/A</h4>
+                                <p class="mb-0">Tất cả đều tốt!</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

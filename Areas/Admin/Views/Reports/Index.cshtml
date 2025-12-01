@@ -1,0 +1,247 @@
+@using Bookstore.Models.Dtos
+@{
+    ViewData["Title"] = "Báo cáo tổng quan";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    var dailyRevenue = ViewBag.DailyRevenue as List<DailyRevenueDto> ?? new List<DailyRevenueDto>();
+    var topProducts = ViewBag.TopProducts as List<TopSellingProductDto> ?? new List<TopSellingProductDto>();
+    var categoryStats = ViewBag.CategoryStats as List<CategoryStatisticsDto> ?? new List<CategoryStatisticsDto>();
+    var topCustomers = ViewBag.TopCustomers as List<TopCustomerDto> ?? new List<TopCustomerDto>();
+    var startDate = (DateTime)ViewBag.StartDate;
+    var endDate = (DateTime)ViewBag.EndDate;
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">
+        <i class="bi bi-bar-chart"></i> Báo cáo tổng quan
+    </h1>
+    <div>
+        <a href="@Url.Action("Revenue", "Reports")" class="btn btn-sm btn-primary">
+            <i class="bi bi-graph-up"></i> Doanh thu
+        </a>
+        <a href="@Url.Action("TopProducts", "Reports")" class="btn btn-sm btn-success">
+            <i class="bi bi-star"></i> Top sản phẩm
+        </a>
+        <a href="@Url.Action("Categories", "Reports")" class="btn btn-sm btn-info">
+            <i class="bi bi-tags"></i> Danh mục
+        </a>
+        <a href="@Url.Action("TopCustomers", "Reports")" class="btn btn-sm btn-warning">
+            <i class="bi bi-people"></i> Khách hàng VIP
+        </a>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng doanh thu (30 ngày)</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">@dailyRevenue.Sum(r => r.TotalRevenue).ToString("N0")₫</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Tổng đơn hàng</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">@dailyRevenue.Sum(r => r.OrderCount)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Giá trị đơn TB</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    @(dailyRevenue.Any() ? dailyRevenue.Average(r => r.AverageOrderValue).ToString("N0") : "0")₫
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Top khách hàng</div>
+                <div class="h5 mb-0 font-weight-bold text-gray-800">@topCustomers.Count người</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Daily Revenue Chart Data -->
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="bi bi-graph-up"></i> Doanh thu 30 ngày gần đây
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Ngày</th>
+                                <th class="text-center">Số đơn</th>
+                                <th class="text-end">Doanh thu</th>
+                                <th class="text-end">TB/đơn</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var day in dailyRevenue.OrderByDescending(r => r.ReportDate).Take(10))
+                            {
+                                <tr>
+                                    <td>@day.ReportDate.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-center"><span class="badge bg-primary">@day.OrderCount</span></td>
+                                    <td class="text-end">@day.TotalRevenue.ToString("N0")₫</td>
+                                    <td class="text-end text-muted">@day.AverageOrderValue.ToString("N0")₫</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                @if (dailyRevenue.Count > 10)
+                {
+                    <a href="@Url.Action("Revenue", "Reports")" class="btn btn-sm btn-outline-primary">Xem tất cả</a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Stats -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-info">
+                    <i class="bi bi-tags"></i> Thống kê danh mục
+                </h6>
+            </div>
+            <div class="card-body">
+                @if (categoryStats.Any())
+                {
+                    @foreach (var cat in categoryStats.Take(5))
+                    {
+                        var percentage = categoryStats.Sum(c => c.TotalRevenue) > 0 
+                            ? (cat.TotalRevenue / categoryStats.Sum(c => c.TotalRevenue) * 100) 
+                            : 0;
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>@cat.CategoryName</span>
+                                <span class="text-muted">@cat.TotalRevenue.ToString("N0")₫</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar bg-info" role="progressbar" style="width: @percentage.ToString("F0")%"></div>
+                            </div>
+                        </div>
+                    }
+                    <a href="@Url.Action("Categories", "Reports")" class="btn btn-sm btn-outline-info">Xem chi tiết</a>
+                }
+                else
+                {
+                    <p class="text-muted text-center">Chưa có dữ liệu</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Top Selling Products -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-success">
+                    <i class="bi bi-star"></i> Top 10 sản phẩm bán chạy
+                </h6>
+            </div>
+            <div class="card-body">
+                @if (topProducts.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Sản phẩm</th>
+                                    <th class="text-center">Đã bán</th>
+                                    <th class="text-end">Doanh thu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ var rank = 1; }
+                                @foreach (var product in topProducts)
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-success">@rank</span></td>
+                                        <td>
+                                            <strong>@product.Title</strong>
+                                            <br /><small class="text-muted">@product.Author</small>
+                                        </td>
+                                        <td class="text-center">@product.TotalSold</td>
+                                        <td class="text-end">@product.TotalRevenue.ToString("N0")₫</td>
+                                    </tr>
+                                    rank++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <a href="@Url.Action("TopProducts", "Reports")" class="btn btn-sm btn-outline-success">Xem chi tiết</a>
+                }
+                else
+                {
+                    <p class="text-muted text-center">Chưa có dữ liệu bán hàng</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Customers -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-warning">
+                    <i class="bi bi-people"></i> Top 10 khách hàng VIP
+                </h6>
+            </div>
+            <div class="card-body">
+                @if (topCustomers.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Khách hàng</th>
+                                    <th class="text-center">Đơn hàng</th>
+                                    <th class="text-end">Tổng chi tiêu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ var customerRank = 1; }
+                                @foreach (var customer in topCustomers)
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-warning text-dark">@customerRank</span></td>
+                                        <td>
+                                            <strong>@(customer.FullName ?? "N/A")</strong>
+                                            <br /><small class="text-muted">@customer.Email</small>
+                                        </td>
+                                        <td class="text-center">@customer.OrderCount</td>
+                                        <td class="text-end">@customer.TotalSpent.ToString("N0")₫</td>
+                                    </tr>
+                                    customerRank++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <a href="@Url.Action("TopCustomers", "Reports")" class="btn btn-sm btn-outline-warning">Xem chi tiết</a>
+                }
+                else
+                {
+                    <p class="text-muted text-center">Chưa có dữ liệu khách hàng</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
