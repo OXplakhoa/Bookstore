@@ -11,7 +11,15 @@ public static class DbInitializer
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-        await context.Database.MigrateAsync();
+        try
+        {
+            await context.Database.MigrateAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lưu ý: Không thể chạy Migration tự động (có thể do Database đã được tạo thủ công). Lỗi: {ex.Message}");
+            // Tiếp tục chạy ứng dụng thay vì dừng lại
+        }
 
         // Roles
         string [] roles = new [] {"Admin", "Seller", "Customer"};
@@ -30,6 +38,29 @@ public static class DbInitializer
             admin = new ApplicationUser {UserName = adminEmail, Email = adminEmail, EmailConfirmed = true, FullName="Site Admin Local"};
             await userManager.CreateAsync(admin, "Admin@123"); //Need to change when in production
             await userManager.AddToRoleAsync(admin, "Admin");
+        }
+        else
+        {
+            // Nếu user đã tồn tại (do chạy script SQL), reset mật khẩu về mặc định để đảm bảo đăng nhập được
+            bool needReset = false;
+            try 
+            {
+                if (!await userManager.CheckPasswordAsync(admin, "Admin@123"))
+                {
+                    needReset = true;
+                }
+            }
+            catch (FormatException)
+            {
+                // Hash trong database bị lỗi (không phải Base64 hợp lệ), cần reset ngay
+                needReset = true;
+            }
+
+            if (needReset)
+            {
+                var token = await userManager.GeneratePasswordResetTokenAsync(admin);
+                await userManager.ResetPasswordAsync(admin, token, "Admin@123");
+            }
         }
         //Seed Category + Product
         if (!context.Categories.Any())
