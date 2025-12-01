@@ -50,7 +50,9 @@ public class EmailSender : IEmailSender
         var response = await client.SendEmailAsync(message);
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("Failed to send email to {Recipient}. StatusCode: {StatusCode}", email, response.StatusCode);
+            var responseBody = await response.Body.ReadAsStringAsync();
+            _logger.LogError("Failed to send email to {Recipient}. StatusCode: {StatusCode}. Response: {Response}. ApiKey starts with: {ApiKeyPrefix}", 
+                email, response.StatusCode, responseBody, _settings.ApiKey?.Substring(0, Math.Min(20, _settings.ApiKey?.Length ?? 0)));
         }
         else
         {
