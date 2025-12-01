@@ -27,6 +27,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        
+        // Configure ApplicationUser table to handle triggers (fixes OUTPUT clause issue)
+        builder.Entity<ApplicationUser>()
+            .ToTable(tb => tb.HasTrigger("SomeTrigger"));
+        
         // Add Configurations
         builder.Entity<Product>()
             .Property(p => p.Price)
