@@ -20,6 +20,7 @@ BEGIN
         -- Thống kê sản phẩm
         (SELECT COUNT(*) FROM dbo.Products) AS TotalProducts,
         (SELECT COUNT(*) FROM dbo.Products WHERE IsActive = 1) AS ActiveProducts,
+        (SELECT COUNT(*) FROM dbo.Products WHERE IsActive = 0) AS InactiveProducts,
         (SELECT COUNT(*) FROM dbo.Products WHERE Stock < 10 AND IsActive = 1) AS LowStockProducts,
         (SELECT COUNT(*) FROM dbo.Products WHERE Stock = 0 AND IsActive = 1) AS OutOfStockProducts,
         
@@ -30,7 +31,8 @@ BEGIN
         (SELECT COUNT(*) FROM dbo.Orders) AS TotalOrders,
         (SELECT COUNT(*) FROM dbo.Orders WHERE OrderStatus = 'Pending') AS PendingOrders,
         (SELECT COUNT(*) FROM dbo.Orders WHERE OrderStatus = 'Processing') AS ProcessingOrders,
-        (SELECT COUNT(*) FROM dbo.Orders WHERE OrderStatus = 'Delivered') AS DeliveredOrders,
+        (SELECT COUNT(*) FROM dbo.Orders WHERE OrderStatus = 'Delivered') AS CompletedOrders,
+        (SELECT COUNT(*) FROM dbo.Orders WHERE OrderStatus = 'Cancelled') AS CancelledOrders,
         
         -- Thống kê doanh thu
         (SELECT ISNULL(SUM(Total), 0) FROM dbo.Orders WHERE PaymentStatus = 'Paid') AS TotalRevenue,
@@ -38,6 +40,8 @@ BEGIN
          WHERE PaymentStatus = 'Paid' AND CAST(OrderDate AS DATE) = CAST(GETUTCDATE() AS DATE)) AS TodayRevenue,
         (SELECT ISNULL(SUM(Total), 0) FROM dbo.Orders 
          WHERE PaymentStatus = 'Paid' AND OrderDate >= DATEADD(DAY, -7, GETUTCDATE())) AS WeekRevenue,
+        (SELECT ISNULL(SUM(Total), 0) FROM dbo.Orders 
+         WHERE PaymentStatus = 'Paid' AND MONTH(OrderDate) = MONTH(GETUTCDATE()) AND YEAR(OrderDate) = YEAR(GETUTCDATE())) AS MonthlyRevenue,
         
         -- Thống kê người dùng
         (SELECT COUNT(*) FROM dbo.AspNetUsers) AS TotalUsers,
