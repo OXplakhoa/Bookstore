@@ -1,0 +1,10 @@
+CLO1.1	CLO1.2	CLO2.1	CLO2.2	CLO2.3	CLO3	CLO4	CLO4
+  1.50 	  2.00 	  1.50 	  1.50 	  1.50 	  0.50 	  1.00 	  0.50 
+CLO1.1	Áp dụng cấu trúc lệnh T-SQL để xây dựng và khai thác cơ sở dữ liệu.							
+CLO1.2	Viết các thủ tục, hàm, trigger, cursor theo yêu cầu trong xây dựng cơ sở dữ liệu							
+CLO2.1	Lập kế hoạch và thực hiện sao lưu, phục hồi cơ sở dữ liệu							
+CLO2.2	Thiết kế và cài đặt được mô hình phân quyền người dùng							
+CLO3.1	Cài đặt được các yêu cầu xử lý bằng cấu trúc giao tác và áp dụng các kỹ thuật khóa để giải quyết các vấn đề của truy xuất đồng thời							
+CLO3.2	Xác định được các loại lịch giao tác bằng phương pháp đồ thị							
+CLO4.1	Sắp xếp và thực hiện kế hoạch học tập nghiêm túc, độc lập							
+CLO4.2	Biết lắng nghe, giúp đỡ, hợp tác với người khác							

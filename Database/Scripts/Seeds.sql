@@ -3,8 +3,8 @@
 -- SQL Server Insert Script
 -- Generated: 2025-12-04
 -- =============================================
--- Chạy script này sau khi đã tạo các bảng từ Bookstoredb.sql
--- Lưu ý: Script này sử dụng IDENTITY_INSERT để chèn ID cụ thể
+-- This script seeds all tables with sample data
+-- Password: Admin@123 (hashed with ASP.NET Core Identity)
 -- =============================================
 
 USE Bookstore;
@@ -17,60 +17,25 @@ PRINT N'Seeding AspNetRoles...';
 
 INSERT INTO AspNetRoles (Id, Name, NormalizedName, ConcurrencyStamp)
 VALUES 
-    ('1', 'Admin', 'ADMIN', NEWID()),
-    ('2', 'Seller', 'SELLER', NEWID()),
-    ('3', 'Customer', 'CUSTOMER', NEWID());
+    ('93942231-d855-4285-a9e5-c904082dd4ef', 'Admin', 'ADMIN', NEWID()),
+    ('d7d5d42f-b777-4d45-85cb-efb4fd3b2017', 'Seller', 'SELLER', NEWID()),
+    ('73cd6c4c-1708-4365-a612-9ce8acf9d6ee', 'Customer', 'CUSTOMER', NEWID());
 GO
 
 -- =============================================
 -- 2. SEED USERS
--- Password: Admin@123 (hashed with ASP.NET Core Identity)
--- Lưu ý: PasswordHash này được tạo bởi ASP.NET Core Identity
 -- =============================================
 PRINT N'Seeding AspNetUsers...';
 
--- Admin User
 INSERT INTO AspNetUsers (Id, FullName, DateOfBirth, Address, ProfilePictureUrl, CreatedAt, UpdatedAt, IsActive, IsDeleted, 
     UserName, NormalizedUserName, Email, NormalizedEmail, EmailConfirmed, 
     PasswordHash, SecurityStamp, ConcurrencyStamp, PhoneNumber, PhoneNumberConfirmed, 
     TwoFactorEnabled, LockoutEnd, LockoutEnabled, AccessFailedCount)
 VALUES 
-    ('admin-user-001', N'Quản trị viên', '1990-01-01', N'123 Đường Admin, Quận 1, TP.HCM', NULL, GETUTCDATE(), NULL, 1, 0,
+    ('89854b13-2d30-4bbe-a292-74e53d85f0af', N'Quản trị viên', '1990-01-01', N'123 Đường Admin, Quận 1, TP.HCM', NULL, GETUTCDATE(), NULL, 1, 0,
      'admin@bookstore.local', 'ADMIN@BOOKSTORE.LOCAL', 'admin@bookstore.local', 'ADMIN@BOOKSTORE.LOCAL', 1,
-     'AQAAAAIAAYagAAAAELYEP0kJCHvGZk2qZKX6OhWBNrHQRnF8T6M8x3DqD1T+X3mN8bQMKJLkHvWnE5FLYA==', -- Admin@123
+     'AQAAAAIAAYagAAAAELYEP0kJCHvGZk2qZKX6OhWBNrHQRnF8T6M8x3DqD1T+X3mN8bQMKJLkHvWnE5FLYA==',
      NEWID(), NEWID(), '0901234567', 0, 0, NULL, 1, 0);
-
--- Seller User
-INSERT INTO AspNetUsers (Id, FullName, DateOfBirth, Address, ProfilePictureUrl, CreatedAt, UpdatedAt, IsActive, IsDeleted,
-    UserName, NormalizedUserName, Email, NormalizedEmail, EmailConfirmed,
-    PasswordHash, SecurityStamp, ConcurrencyStamp, PhoneNumber, PhoneNumberConfirmed,
-    TwoFactorEnabled, LockoutEnd, LockoutEnabled, AccessFailedCount)
-VALUES 
-    ('seller-user-001', N'Nguyễn Văn Bán', '1985-05-15', N'456 Đường Seller, Quận 3, TP.HCM', NULL, GETUTCDATE(), NULL, 1, 0,
-     'seller@bookstore.local', 'SELLER@BOOKSTORE.LOCAL', 'seller@bookstore.local', 'SELLER@BOOKSTORE.LOCAL', 1,
-     'AQAAAAIAAYagAAAAELYEP0kJCHvGZk2qZKX6OhWBNrHQRnF8T6M8x3DqD1T+X3mN8bQMKJLkHvWnE5FLYA==', -- Admin@123
-     NEWID(), NEWID(), '0902345678', 0, 0, NULL, 1, 0);
-
--- Customer Users
-INSERT INTO AspNetUsers (Id, FullName, DateOfBirth, Address, ProfilePictureUrl, CreatedAt, UpdatedAt, IsActive, IsDeleted,
-    UserName, NormalizedUserName, Email, NormalizedEmail, EmailConfirmed,
-    PasswordHash, SecurityStamp, ConcurrencyStamp, PhoneNumber, PhoneNumberConfirmed,
-    TwoFactorEnabled, LockoutEnd, LockoutEnabled, AccessFailedCount)
-VALUES 
-    ('customer-user-001', N'Trần Thị Khách', '1995-03-20', N'789 Đường Customer, Quận 7, TP.HCM', NULL, GETUTCDATE(), NULL, 1, 0,
-     'customer1@gmail.com', 'CUSTOMER1@GMAIL.COM', 'customer1@gmail.com', 'CUSTOMER1@GMAIL.COM', 1,
-     'AQAAAAIAAYagAAAAELYEP0kJCHvGZk2qZKX6OhWBNrHQRnF8T6M8x3DqD1T+X3mN8bQMKJLkHvWnE5FLYA==', -- Admin@123
-     NEWID(), NEWID(), '0903456789', 0, 0, NULL, 1, 0),
-    
-    ('customer-user-002', N'Lê Văn Mua', '1992-08-10', N'321 Đường Buyer, Quận Bình Thạnh, TP.HCM', NULL, GETUTCDATE(), NULL, 1, 0,
-     'customer2@gmail.com', 'CUSTOMER2@GMAIL.COM', 'customer2@gmail.com', 'CUSTOMER2@GMAIL.COM', 1,
-     'AQAAAAIAAYagAAAAELYEP0kJCHvGZk2qZKX6OhWBNrHQRnF8T6M8x3DqD1T+X3mN8bQMKJLkHvWnE5FLYA==', -- Admin@123
-     NEWID(), NEWID(), '0904567890', 0, 0, NULL, 1, 0),
-    
-    ('customer-user-003', N'Phạm Thị Đọc', '1998-12-25', N'654 Đường Reader, Quận 10, TP.HCM', NULL, GETUTCDATE(), NULL, 1, 0,
-     'customer3@gmail.com', 'CUSTOMER3@GMAIL.COM', 'customer3@gmail.com', 'CUSTOMER3@GMAIL.COM', 1,
-     'AQAAAAIAAYagAAAAELYEP0kJCHvGZk2qZKX6OhWBNrHQRnF8T6M8x3DqD1T+X3mN8bQMKJLkHvWnE5FLYA==', -- Admin@123
-     NEWID(), NEWID(), '0905678901', 0, 0, NULL, 1, 0);
 GO
 
 -- =============================================
@@ -80,11 +45,7 @@ PRINT N'Seeding AspNetUserRoles...';
 
 INSERT INTO AspNetUserRoles (UserId, RoleId)
 VALUES 
-    ('admin-user-001', '1'),      -- Admin role
-    ('seller-user-001', '2'),     -- Seller role
-    ('customer-user-001', '3'),   -- Customer role
-    ('customer-user-002', '3'),   -- Customer role
-    ('customer-user-003', '3');   -- Customer role
+    ('89854b13-2d30-4bbe-a292-74e53d85f0af', '93942231-d855-4285-a9e5-c904082dd4ef');
 GO
 
 -- =============================================
@@ -354,20 +315,24 @@ SET IDENTITY_INSERT Orders ON;
 INSERT INTO Orders (OrderId, UserId, OrderNumber, OrderDate, Total, OrderStatus, PaymentStatus, PaymentMethod, 
     ShippingName, ShippingEmail, ShippingPhone, ShippingAddress, TrackingNumber, Notes)
 VALUES 
-    (1, 'customer-user-001', 'ORD-20251201-001', DATEADD(DAY, -3, GETUTCDATE()), 247000.00, N'Delivered', N'Paid', N'Stripe',
-     N'Trần Thị Khách', 'customer1@gmail.com', '0903456789', N'789 Đường Customer, Quận 7, TP.HCM', 
+    -- Order for admin user
+    (1, '89854b13-2d30-4bbe-a292-74e53d85f0af', 'ORD-20251201-001', DATEADD(DAY, -3, GETUTCDATE()), 223000.00, N'Delivered', N'Paid', N'Stripe',
+     N'Quản trị viên', 'admin@bookstore.local', '0901234567', N'123 Đường Admin, Quận 1, TP.HCM', 
      'VN123456789', N'Giao hàng giờ hành chính'),
     
-    (2, 'customer-user-001', 'ORD-20251202-002', DATEADD(DAY, -2, GETUTCDATE()), 189000.00, N'Shipped', N'Paid', N'COD',
-     N'Trần Thị Khách', 'customer1@gmail.com', '0903456789', N'789 Đường Customer, Quận 7, TP.HCM', 
+    -- Another order for admin user
+    (2, '89854b13-2d30-4bbe-a292-74e53d85f0af', 'ORD-20251202-002', DATEADD(DAY, -2, GETUTCDATE()), 189000.00, N'Shipped', N'Paid', N'COD',
+     N'Quản trị viên', 'admin@bookstore.local', '0901234567', N'123 Đường Admin, Quận 1, TP.HCM', 
      'VN987654321', NULL),
     
-    (3, 'customer-user-002', 'ORD-20251203-003', DATEADD(DAY, -1, GETUTCDATE()), 350000.00, N'Processing', N'Paid', N'Stripe',
-     N'Lê Văn Mua', 'customer2@gmail.com', '0904567890', N'321 Đường Buyer, Quận Bình Thạnh, TP.HCM', 
+    -- Another order for admin user
+    (3, '89854b13-2d30-4bbe-a292-74e53d85f0af', 'ORD-20251203-003', DATEADD(DAY, -1, GETUTCDATE()), 350000.00, N'Processing', N'Paid', N'Stripe',
+     N'Quản trị viên', 'admin@bookstore.local', '0901234567', N'123 Đường Admin, Quận 1, TP.HCM', 
      NULL, N'Đóng gói cẩn thận'),
     
-    (4, 'customer-user-003', 'ORD-20251204-004', GETUTCDATE(), 154000.00, N'Pending', N'Pending', NULL,
-     N'Phạm Thị Đọc', 'customer3@gmail.com', '0905678901', N'654 Đường Reader, Quận 10, TP.HCM', 
+    -- Another order for admin user
+    (4, '89854b13-2d30-4bbe-a292-74e53d85f0af', 'ORD-20251204-004', GETUTCDATE(), 141000.00, N'Pending', N'Pending', NULL,
+     N'Quản trị viên', 'admin@bookstore.local', '0901234567', N'123 Đường Admin, Quận 1, TP.HCM', 
      NULL, NULL);
 
 SET IDENTITY_INSERT Orders OFF;
@@ -409,10 +374,10 @@ SET IDENTITY_INSERT CartItems ON;
 
 INSERT INTO CartItems (CartItemId, UserId, ProductId, FlashSaleProductId, Quantity, DateAdded, LockedPrice)
 VALUES 
-    (1, 'customer-user-001', 17, NULL, 1, GETUTCDATE(), 199000.00),   -- Sapiens
-    (2, 'customer-user-001', 15, NULL, 2, GETUTCDATE(), 125000.00),   -- Lược Sử Thời Gian
-    (3, 'customer-user-002', 18, 4, 1, GETUTCDATE(), 45000.00),       -- Hoàng Tử Bé (Flash Sale)
-    (4, 'customer-user-003', 27, NULL, 3, GETUTCDATE(), 25000.00);    -- One Piece Tập 1
+    (1, '89854b13-2d30-4bbe-a292-74e53d85f0af', 17, NULL, 1, GETUTCDATE(), 199000.00),   -- Sapiens
+    (2, '89854b13-2d30-4bbe-a292-74e53d85f0af', 15, NULL, 2, GETUTCDATE(), 125000.00),   -- Lược Sử Thời Gian
+    (3, '89854b13-2d30-4bbe-a292-74e53d85f0af', 18, 4, GETUTCDATE(), 45000.00),          -- Hoàng Tử Bé (Flash Sale)
+    (4, '89854b13-2d30-4bbe-a292-74e53d85f0af', 27, 7, GETUTCDATE(), 18000.00);          -- One Piece Tập 1 (Flash Sale)
 
 SET IDENTITY_INSERT CartItems OFF;
 GO
@@ -426,7 +391,7 @@ SET IDENTITY_INSERT Payments ON;
 
 INSERT INTO Payments (PaymentId, OrderId, PaymentMethod, Status, PaymentDate, Amount, TransactionId, PaymentIntentId)
 VALUES 
-    (1, 1, N'Stripe', N'Completed', DATEADD(DAY, -3, GETUTCDATE()), 247000.00, 'txn_1234567890', 'pi_1234567890'),
+    (1, 1, N'Stripe', N'Completed', DATEADD(DAY, -3, GETUTCDATE()), 223000.00, 'txn_1234567890', 'pi_1234567890'),
     (2, 2, N'COD', N'Completed', DATEADD(DAY, -2, GETUTCDATE()), 189000.00, NULL, NULL),
     (3, 3, N'Stripe', N'Completed', DATEADD(DAY, -1, GETUTCDATE()), 350000.00, 'txn_0987654321', 'pi_0987654321');
 
@@ -442,14 +407,14 @@ SET IDENTITY_INSERT Reviews ON;
 
 INSERT INTO Reviews (ReviewId, UserId, ProductId, Rating, Comment, CreatedAt)
 VALUES 
-    (1, 'customer-user-001', 5, 5, N'Sách rất hay, đọc rất cuốn hút. Highly recommended!', DATEADD(DAY, -2, GETUTCDATE())),
-    (2, 'customer-user-001', 6, 4, N'Nội dung tốt, giúp tôi giao tiếp hiệu quả hơn.', DATEADD(DAY, -2, GETUTCDATE())),
-    (3, 'customer-user-002', 16, 5, N'Cuốn sách tuyệt vời cho lập trình viên. Must read!', DATEADD(DAY, -1, GETUTCDATE())),
-    (4, 'customer-user-002', 11, 5, N'Sách hay, giải thích rõ ràng về tâm lý học hành vi.', DATEADD(DAY, -1, GETUTCDATE())),
-    (5, 'customer-user-003', 18, 5, N'Hoàng Tử Bé - một kiệt tác! Đọc đi đọc lại nhiều lần vẫn thấy hay.', GETUTCDATE()),
-    (6, 'customer-user-001', 13, 4, N'Sách truyền cảm hứng, đáng đọc.', DATEADD(DAY, -3, GETUTCDATE())),
-    (7, 'customer-user-002', 17, 5, N'Sapiens mở rộng tầm nhìn của tôi về lịch sử loài người.', DATEADD(DAY, -2, GETUTCDATE())),
-    (8, 'customer-user-003', 27, 5, N'One Piece là manga hay nhất! Mua để sưu tầm.', GETUTCDATE());
+    (1, '89854b13-2d30-4bbe-a292-74e53d85f0af', 5, 5, N'Sách rất hay, đọc rất cuốn hút. Highly recommended!', DATEADD(DAY, -2, GETUTCDATE())),
+    (2, '89854b13-2d30-4bbe-a292-74e53d85f0af', 6, 4, N'Nội dung tốt, giúp tôi giao tiếp hiệu quả hơn.', DATEADD(DAY, -2, GETUTCDATE())),
+    (3, '89854b13-2d30-4bbe-a292-74e53d85f0af', 16, 5, N'Cuốn sách tuyệt vời cho lập trình viên. Must read!', DATEADD(DAY, -1, GETUTCDATE())),
+    (4, '89854b13-2d30-4bbe-a292-74e53d85f0af', 11, 5, N'Sách hay, giải thích rõ ràng về tâm lý học hành vi.', DATEADD(DAY, -1, GETUTCDATE())),
+    (5, '89854b13-2d30-4bbe-a292-74e53d85f0af', 18, 5, N'Hoàng Tử Bé - một kiệt tác! Đọc đi đọc lại nhiều lần vẫn thấy hay.', GETUTCDATE()),
+    (6, '89854b13-2d30-4bbe-a292-74e53d85f0af', 13, 4, N'Sách truyền cảm hứng, đáng đọc.', DATEADD(DAY, -3, GETUTCDATE())),
+    (7, '89854b13-2d30-4bbe-a292-74e53d85f0af', 17, 5, N'Sapiens mở rộng tầm nhìn của tôi về lịch sử loài người.', DATEADD(DAY, -2, GETUTCDATE())),
+    (8, '89854b13-2d30-4bbe-a292-74e53d85f0af', 27, 5, N'One Piece là manga hay nhất! Mua để sưu tầm.', GETUTCDATE());
 
 SET IDENTITY_INSERT Reviews OFF;
 GO
@@ -461,14 +426,14 @@ PRINT N'Seeding FavoriteProducts...';
 
 INSERT INTO FavoriteProducts (ApplicationUserId, ProductId)
 VALUES 
-    ('customer-user-001', 5),   -- Nhà Giả Kim
-    ('customer-user-001', 6),   -- Đắc Nhân Tâm
-    ('customer-user-001', 17),  -- Sapiens
-    ('customer-user-002', 16),  -- Clean Code
-    ('customer-user-002', 15),  -- Lược Sử Thời Gian
-    ('customer-user-003', 18),  -- Hoàng Tử Bé
-    ('customer-user-003', 27),  -- One Piece
-    ('customer-user-003', 28);  -- Naruto
+    ('89854b13-2d30-4bbe-a292-74e53d85f0af', 5),   -- Nhà Giả Kim
+    ('89854b13-2d30-4bbe-a292-74e53d85f0af', 6),   -- Đắc Nhân Tâm
+    ('89854b13-2d30-4bbe-a292-74e53d85f0af', 17),  -- Sapiens
+    ('89854b13-2d30-4bbe-a292-74e53d85f0af', 16),  -- Clean Code
+    ('89854b13-2d30-4bbe-a292-74e53d85f0af', 15),  -- Lược Sử Thời Gian
+    ('89854b13-2d30-4bbe-a292-74e53d85f0af', 18),  -- Hoàng Tử Bé
+    ('89854b13-2d30-4bbe-a292-74e53d85f0af', 27),  -- One Piece
+    ('89854b13-2d30-4bbe-a292-74e53d85f0af', 28);  -- Naruto
 GO
 
 -- =============================================
@@ -480,17 +445,17 @@ SET IDENTITY_INSERT RecentlyViewedProducts ON;
 
 INSERT INTO RecentlyViewedProducts (Id, ApplicationUserId, ProductId, ViewedAt)
 VALUES 
-    (1, 'customer-user-001', 5, DATEADD(HOUR, -1, GETUTCDATE())),
-    (2, 'customer-user-001', 6, DATEADD(HOUR, -2, GETUTCDATE())),
-    (3, 'customer-user-001', 17, DATEADD(HOUR, -3, GETUTCDATE())),
-    (4, 'customer-user-001', 15, DATEADD(HOUR, -4, GETUTCDATE())),
-    (5, 'customer-user-002', 16, DATEADD(HOUR, -1, GETUTCDATE())),
-    (6, 'customer-user-002', 11, DATEADD(HOUR, -2, GETUTCDATE())),
-    (7, 'customer-user-002', 10, DATEADD(HOUR, -3, GETUTCDATE())),
-    (8, 'customer-user-003', 27, DATEADD(MINUTE, -30, GETUTCDATE())),
-    (9, 'customer-user-003', 28, DATEADD(MINUTE, -45, GETUTCDATE())),
-    (10, 'customer-user-003', 29, DATEADD(HOUR, -1, GETUTCDATE())),
-    (11, 'customer-user-003', 18, DATEADD(HOUR, -2, GETUTCDATE()));
+    (1, '89854b13-2d30-4bbe-a292-74e53d85f0af', 5, DATEADD(HOUR, -1, GETUTCDATE())),
+    (2, '89854b13-2d30-4bbe-a292-74e53d85f0af', 6, DATEADD(HOUR, -2, GETUTCDATE())),
+    (3, '89854b13-2d30-4bbe-a292-74e53d85f0af', 17, DATEADD(HOUR, -3, GETUTCDATE())),
+    (4, '89854b13-2d30-4bbe-a292-74e53d85f0af', 15, DATEADD(HOUR, -4, GETUTCDATE())),
+    (5, '89854b13-2d30-4bbe-a292-74e53d85f0af', 16, DATEADD(HOUR, -1, GETUTCDATE())),
+    (6, '89854b13-2d30-4bbe-a292-74e53d85f0af', 11, DATEADD(HOUR, -2, GETUTCDATE())),
+    (7, '89854b13-2d30-4bbe-a292-74e53d85f0af', 10, DATEADD(HOUR, -3, GETUTCDATE())),
+    (8, '89854b13-2d30-4bbe-a292-74e53d85f0af', 27, DATEADD(MINUTE, -30, GETUTCDATE())),
+    (9, '89854b13-2d30-4bbe-a292-74e53d85f0af', 28, DATEADD(MINUTE, -45, GETUTCDATE())),
+    (10, '89854b13-2d30-4bbe-a292-74e53d85f0af', 29, DATEADD(HOUR, -1, GETUTCDATE())),
+    (11, '89854b13-2d30-4bbe-a292-74e53d85f0af', 18, DATEADD(HOUR, -2, GETUTCDATE()));
 
 SET IDENTITY_INSERT RecentlyViewedProducts OFF;
 GO
@@ -504,12 +469,11 @@ SET IDENTITY_INSERT Notifications ON;
 
 INSERT INTO Notifications (NotificationId, UserId, Message, CreatedAt)
 VALUES 
-    (1, 'customer-user-001', N'Đơn hàng ORD-20251201-001 của bạn đã được giao thành công!', DATEADD(DAY, -3, GETUTCDATE())),
-    (2, 'customer-user-001', N'Đơn hàng ORD-20251202-002 đang được vận chuyển.', DATEADD(DAY, -2, GETUTCDATE())),
-    (3, 'customer-user-002', N'Đơn hàng ORD-20251203-003 đang được xử lý.', DATEADD(DAY, -1, GETUTCDATE())),
-    (4, 'customer-user-003', N'Flash Sale Cuối Tuần đã bắt đầu! Giảm giá đến 50%!', DATEADD(DAY, -1, GETUTCDATE())),
-    (5, 'admin-user-001', N'Có 1 đơn hàng mới cần xử lý.', GETUTCDATE()),
-    (6, 'seller-user-001', N'Sản phẩm "Nhà Giả Kim" sắp hết hàng (còn 50 cuốn).', GETUTCDATE());
+    (1, '89854b13-2d30-4bbe-a292-74e53d85f0af', N'Đơn hàng ORD-20251201-001 của bạn đã được giao thành công!', DATEADD(DAY, -3, GETUTCDATE())),
+    (2, '89854b13-2d30-4bbe-a292-74e53d85f0af', N'Đơn hàng ORD-20251202-002 đang được vận chuyển.', DATEADD(DAY, -2, GETUTCDATE())),
+    (3, '89854b13-2d30-4bbe-a292-74e53d85f0af', N'Đơn hàng ORD-20251203-003 đang được xử lý.', DATEADD(DAY, -1, GETUTCDATE())),
+    (4, '89854b13-2d30-4bbe-a292-74e53d85f0af', N'Flash Sale Cuối Tuần đã bắt đầu! Giảm giá đến 50%!', DATEADD(DAY, -1, GETUTCDATE())),
+    (5, '89854b13-2d30-4bbe-a292-74e53d85f0af', N'Có 1 đơn hàng mới cần xử lý.', GETUTCDATE());
 
 SET IDENTITY_INSERT Notifications OFF;
 GO
@@ -523,11 +487,8 @@ SET IDENTITY_INSERT Messages ON;
 
 INSERT INTO Messages (MessageId, SenderId, ReceiverId, Content, CreatedAt)
 VALUES 
-    (1, 'customer-user-001', 'seller-user-001', N'Xin chào, sách Nhà Giả Kim còn hàng không ạ?', DATEADD(DAY, -2, GETUTCDATE())),
-    (2, 'seller-user-001', 'customer-user-001', N'Chào bạn, sách vẫn còn hàng ạ. Bạn có thể đặt ngay nhé!', DATEADD(DAY, -2, GETUTCDATE())),
-    (3, 'customer-user-002', 'admin-user-001', N'Tôi muốn hỏi về chính sách đổi trả sách.', DATEADD(DAY, -1, GETUTCDATE())),
-    (4, 'admin-user-001', 'customer-user-002', N'Chào bạn, bạn có thể đổi trả trong vòng 7 ngày nếu sách còn nguyên seal. Chi tiết xem tại trang Chính sách.', DATEADD(DAY, -1, GETUTCDATE())),
-    (5, 'customer-user-003', 'seller-user-001', N'Khi nào có manga One Piece tập mới vậy shop?', GETUTCDATE());
+    (1, '89854b13-2d30-4bbe-a292-74e53d85f0af', '89854b13-2d30-4bbe-a292-74e53d85f0af', N'Ghi chú cá nhân: Cần kiểm tra kho hàng Nhà Giả Kim.', DATEADD(DAY, -2, GETUTCDATE())),
+    (2, '89854b13-2d30-4bbe-a292-74e53d85f0af', '89854b13-2d30-4bbe-a292-74e53d85f0af', N'Cần xem xét chính sách đổi trả sách.', DATEADD(DAY, -1, GETUTCDATE()));
 
 SET IDENTITY_INSERT Messages OFF;
 GO
