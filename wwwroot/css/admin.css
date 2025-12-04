@@ -359,6 +359,171 @@
 /* ==========================================================================
    9. Responsive Sidebar
    ========================================================================== */
+
+/* Extra small devices (phones, less than 576px) */
+@media (max-width: 575.98px) {
+    :root {
+        --sidebar-width: 260px;
+    }
+    
+    .admin-sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .admin-sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .admin-main {
+        margin-left: 0;
+    }
+    
+    .admin-header {
+        padding: 0.75rem 1rem;
+    }
+    
+    .admin-content {
+        padding: 1rem;
+    }
+    
+    .stat-value {
+        font-size: 1.25rem;
+    }
+    
+    .welcome-banner {
+        padding: 1rem 1.25rem;
+    }
+    
+    .welcome-banner h2 {
+        font-size: 1.25rem;
+    }
+}
+
+/* Small devices (landscape phones, 576px to 767px) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .admin-sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .admin-sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .admin-main {
+        margin-left: 0;
+    }
+    
+    .admin-content {
+        padding: 1.25rem;
+    }
+}
+
+/* Medium devices (tablets, 768px to 991px) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .admin-sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .admin-sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .admin-main {
+        margin-left: 0;
+    }
+    
+    .admin-content {
+        padding: 1.5rem;
+    }
+}
+
+/* Large devices (desktops, 992px to 1199px) - MacBook Air 13" */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    :root {
+        --sidebar-width: 240px;
+    }
+    
+    .admin-sidebar {
+        width: var(--sidebar-width);
+    }
+    
+    .admin-main {
+        margin-left: var(--sidebar-width);
+    }
+    
+    .sidebar-toggle {
+        display: none;
+    }
+    
+    .admin-content {
+        padding: 1.5rem;
+    }
+    
+    .stat-value {
+        font-size: 1.35rem;
+    }
+    
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.25rem;
+    }
+    
+    .stat-card {
+        padding: 1.25rem;
+    }
+    
+    .welcome-banner {
+        padding: 1.25rem 1.5rem;
+    }
+}
+
+/* Extra large devices (large desktops, 1200px to 1399px) - MacBook Pro 14" */
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+    :root {
+        --sidebar-width: 250px;
+    }
+    
+    .admin-sidebar {
+        width: var(--sidebar-width);
+    }
+    
+    .admin-main {
+        margin-left: var(--sidebar-width);
+    }
+    
+    .sidebar-toggle {
+        display: none;
+    }
+    
+    .admin-content {
+        padding: 1.75rem;
+    }
+}
+
+/* XXL devices (larger desktops, 1400px and up) */
+@media (min-width: 1400px) {
+    :root {
+        --sidebar-width: 260px;
+    }
+    
+    .admin-sidebar {
+        width: var(--sidebar-width);
+    }
+    
+    .admin-main {
+        margin-left: var(--sidebar-width);
+    }
+    
+    .sidebar-toggle {
+        display: none;
+    }
+}
+
+/* General responsive for mobile (max 991px) */
 @media (max-width: 991.98px) {
     .admin-sidebar {
         transform: translateX(-100%);
@@ -372,8 +537,13 @@
     .admin-main {
         margin-left: 0;
     }
+    
+    .sidebar-toggle {
+        display: inline-flex !important;
+    }
 }
 
+/* Desktop (min 992px) */
 @media (min-width: 992px) {
     .sidebar-toggle {
         display: none;
@@ -639,13 +809,13 @@
 }
 
 /* ==========================================================================
-   14. Responsive
+   14. Responsive for Admin Tables and Forms
    ========================================================================== */
 @media (max-width: 991px) {
     .admin-sidebar {
         position: fixed;
         left: -260px;
-        top: 56px;
+        top: 0;
         z-index: 1050;
         width: 260px;
         transition: left 0.3s ease;
@@ -657,6 +827,52 @@
 
     .admin-main {
         margin-left: 0 !important;
+    }
+    
+    .admin-table th,
+    .admin-table td {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* Responsive for MacBook screens (1280px - 1440px) */
+@media (min-width: 992px) and (max-width: 1440px) {
+    .admin-header {
+        padding: 0.875rem 1.5rem;
+    }
+    
+    .admin-page-title {
+        font-size: 1.35rem;
+    }
+    
+    .admin-table th,
+    .admin-table td {
+        padding: 0.875rem 1rem;
+    }
+    
+    .admin-form .form-control,
+    .admin-form .form-select {
+        padding: 0.625rem 0.875rem;
+    }
+    
+    .btn-admin-primary,
+    .btn-admin-success,
+    .btn-admin-danger {
+        padding: 0.5rem 1.25rem;
+    }
+}
+
+/* High DPI / Retina display adjustments */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .admin-card,
+    .stat-card {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+    
+    .admin-card:hover,
+    .stat-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
 }
 
@@ -682,3 +898,119 @@
 .stats-card:nth-child(2) { animation-delay: 0.2s; }
 .stats-card:nth-child(3) { animation-delay: 0.3s; }
 .stats-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* ==========================================================================
+   16. MacBook & High Resolution Display Specific Fixes
+   ========================================================================== */
+
+/* MacBook Air 13" (1280px-1440px scaled) */
+@media screen and (min-width: 1200px) and (max-width: 1440px) {
+    .col-xl-3 {
+        flex: 0 0 auto;
+        width: 25%;
+    }
+    
+    .stat-card {
+        padding: 1.25rem;
+    }
+    
+    .stat-value {
+        font-size: 1.4rem;
+    }
+    
+    .stat-label {
+        font-size: 0.7rem;
+    }
+    
+    .chart-container {
+        height: 260px !important;
+    }
+    
+    .admin-card-header {
+        padding: 1rem 1.25rem;
+    }
+    
+    .admin-card-body {
+        padding: 1.25rem;
+    }
+    
+    .welcome-banner h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* MacBook Pro 14" and 16" (1512px - 1728px scaled) */
+@media screen and (min-width: 1440px) and (max-width: 1800px) {
+    .stat-card {
+        padding: 1.35rem;
+    }
+    
+    .stat-value {
+        font-size: 1.45rem;
+    }
+    
+    .chart-container {
+        height: 270px !important;
+    }
+}
+
+/* Fix for dashboard grid on smaller desktop screens */
+@media screen and (min-width: 992px) and (max-width: 1199.98px) {
+    .row.g-4 > .col-xl-3 {
+        flex: 0 0 auto;
+        width: 50%;
+    }
+    
+    .row.g-4 > .col-lg-4 {
+        flex: 0 0 auto;
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    .row.g-4 > .col-lg-8 {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+    
+    .row.g-4 > .col-lg-6 {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+}
+
+/* Ensure proper flex behavior for stat cards */
+@media screen and (min-width: 1200px) {
+    .row.g-4 > .col-xl-3 {
+        flex: 0 0 auto;
+        width: 25%;
+    }
+}
+
+/* Sidebar overlay for mobile */
+@media (max-width: 991.98px) {
+    .admin-sidebar.show::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: -1;
+    }
+}
+
+/* Touch-friendly buttons for tablets and touch screens */
+@media (hover: none) and (pointer: coarse) {
+    .stat-card:hover {
+        transform: none;
+    }
+    
+    .quick-action-btn:hover {
+        transform: none;
+    }
+    
+    .btn-admin-primary:hover {
+        transform: none;
+    }
+}
