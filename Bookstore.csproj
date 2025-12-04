@@ -20,4 +20,10 @@
     <PackageReference Include="Stripe.net" Version="49.0.0" />
   </ItemGroup>
 
+  <!-- Exclude private tooling from the compiled assembly so local tool projects don't collide with top-level statements -->
+  <ItemGroup>
+    <Compile Remove="tools\**\*.cs" />
+    <None Remove="tools\**\*" />
+  </ItemGroup>
+
 </Project>

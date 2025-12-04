@@ -216,22 +216,27 @@ public class DatabaseService : IDatabaseService
 
     private async Task<List<CategoryStatisticsDto>> GetCategoryStatisticsFallbackAsync()
     {
-        // Get all order items with product and category info
-        var orderItems = await _context.OrderItems
-            .Include(oi => oi.Product)
-                .ThenInclude(p => p!.Category)
-            .Include(oi => oi.Order)
+        // Project only required fields from OrderItems to avoid EF selecting every column
+        // (This prevents failures if the DB schema is missing newly-added columns like FlashSaleDiscount)
+        var orderItemData = await _context.OrderItems
             .Where(oi => oi.Order!.PaymentStatus == "Paid" && oi.Product!.IsActive)
+            .Select(oi => new
+            {
+                oi.ProductId,
+                oi.Quantity,
+                oi.UnitPrice,
+                CategoryId = oi.Product!.Category!.CategoryId,
+                CategoryName = oi.Product.Category.Name
+            })
             .ToListAsync();
 
-        // Group by category
-        var categoryStats = orderItems
-            .Where(oi => oi.Product?.Category != null)
-            .GroupBy(oi => new { oi.Product!.Category!.CategoryId, oi.Product.Category.Name })
+        // Group by category using the projection
+        var categoryStats = orderItemData
+            .GroupBy(oi => new { oi.CategoryId, oi.CategoryName })
             .Select(g => new CategoryStatisticsDto
             {
                 CategoryId = g.Key.CategoryId,
-                CategoryName = g.Key.Name,
+                CategoryName = g.Key.CategoryName,
                 ProductCount = g.Select(oi => oi.ProductId).Distinct().Count(),
                 TotalSold = g.Sum(oi => oi.Quantity),
                 TotalRevenue = g.Sum(oi => oi.Quantity * oi.UnitPrice)
