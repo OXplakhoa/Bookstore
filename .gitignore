@@ -42,6 +42,7 @@ bld/
 appsettings.*.json
 !appsettings.json
 appsettings.json
+/Users/khoado/code/NET/Bookstore/appsettings.json
 # User secrets
 secrets.json
 user-secrets.json
@@ -50,6 +51,7 @@ user-secrets.json
 # Web root build output
 wwwroot/dist
 wwwroot/lib
+wwwroot/images
 
 # ===================================================================
 # Dependency & Package files
