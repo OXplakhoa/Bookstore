@@ -242,7 +242,6 @@ CHIẾN LƯỢC ĐỀ XUẤT CHO DỰ ÁN:
    - Lưu backup ở ổ đĩa khác với database
    - Có thể copy sang USB hoặc cloud storage
 
-VÍ DỤ LỊCH TRÌNH:
 - Chủ nhật:  Full Backup
 - Thứ 2-6:   Differential Backup
 - Thứ 7:     Differential Backup + Kiểm tra backup
